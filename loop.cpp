@@ -27,11 +27,15 @@ void MainApp::OnLoop(){
 
     player.spritenum1 = 0;
     player.spritenum2 = 4;
-    player.vx = player.vy = player.vz = player.vw = 0;
+    player.vx = player.vz = 0;
+    if (!player.hasgravity){
+        player.vy = player.vw = 0;
+    }
 
+    //player1 velocity
     if (keystate[SDL_SCANCODE_S]){
         player.spritenum1 = 0;
-        player.vy = -player.speed;
+        if (!player.hasgravity) player.vy = -player.speed;
     }
     if (keystate[SDL_SCANCODE_D]){
         player.spritenum1 = 1;
@@ -48,12 +52,24 @@ void MainApp::OnLoop(){
     }
     if (keystate[SDL_SCANCODE_W]){
         player.spritenum1 = 3;
-        player.vy = player.speed;
+        if (player.hasgravity){
+            player.vy -= player.g * dt;
+        } else {
+            player.vy = player.speed;
+        }
+    } else if (player.hasgravity){
+        player.vy -= dt * player.g * ((player.vy<0)?1:player.multg);
+    }
+    if (player.hasgravity && player.ground1 && player.jumpflag1){
+        player.vy = player.jumpspeed;
+        player.ground1 = false;
+        player.jumpflag1 = false;
     }
 
+    //player2 velocity
     if (keystate[SDL_SCANCODE_DOWN]){
         player.spritenum2 = 4;
-        player.vw = -player.speed;
+        if (!player.hasgravity) player.vw = -player.speed;
     }
     if (keystate[SDL_SCANCODE_RIGHT]){
         player.spritenum2 = 5;
@@ -70,7 +86,18 @@ void MainApp::OnLoop(){
     }
     if (keystate[SDL_SCANCODE_UP]){
         player.spritenum2 = 7;
-        player.vw = player.speed;
+        if (player.hasgravity){
+            player.vw -= player.g * dt;
+        } else {
+            player.vw = player.speed;
+        }
+    } else if (player.hasgravity){
+        player.vw -= dt * player.g * ((player.vw<0)?1:player.multg);
+    }
+    if (player.hasgravity && player.ground2 && player.jumpflag2){
+        player.vw = player.jumpspeed;
+        player.ground2 = false;
+        player.jumpflag2 = false;
     }
 
     // boundary detect
@@ -85,6 +112,7 @@ void MainApp::OnLoop(){
     if (player.y1() + player.vy * dt < 0) {
         player.vy = 0;
         player.y1_set(0);
+        player.ground1 = true;
     }
     if (player.y2() + player.vy * dt > map.size) {
         player.vy = 0;
@@ -102,6 +130,7 @@ void MainApp::OnLoop(){
     if (player.w1() + player.vw * dt < 0) {
         player.vw = 0;
         player.w1_set(0);
+        player.ground2 = true;
     }
     if (player.w2() + player.vw * dt > map.size) {
         player.vw = 0;
@@ -139,6 +168,7 @@ void MainApp::OnLoop(){
             if (!blockTypes[map.get(i,j,k,l)].passable) {
                 player.vy = 0;
                 player.y1_set(j+1);
+                player.ground1 = true;
             };
     }
     if (player.vy > 0){
@@ -183,6 +213,7 @@ void MainApp::OnLoop(){
             if (!blockTypes[map.get(i,j,k,l)].passable) {
                 player.vw = 0;
                 player.w1_set(l+1);
+                player.ground2 = true;
             };
     }
     if (player.vw > 0){

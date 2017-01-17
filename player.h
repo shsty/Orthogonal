@@ -5,10 +5,17 @@ class Player{
 public:
     float x, y, z, w;
     float vx, vy, vz, vw;
-    float speed;
     float boxx, boxy;
     float height, width;
     int spritenum1, spritenum2;
+
+    //things about jumping
+    float jumpheight, jumptime, jumpdistance, multg;
+    float g, jumpspeed, speed;
+    bool hasgravity;
+    bool jumpflag1, jumpflag2;
+    bool ground1, ground2;
+
     Player();
 
     float x1(){return x + boxx;}

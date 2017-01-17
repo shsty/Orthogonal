@@ -11,4 +11,18 @@ Player::Player(){
     width = 12.0/16;
     speed = 8.0;
     spritenum1 = 0;spritenum2 = 4;
+
+    //things about jumping
+    hasgravity = true;
+    jumpheight = 3.2;
+    jumptime = 0.6;
+    jumpdistance = 4;
+    multg = 5;
+    ground1 = ground2 = false;
+    jumpflag1 = jumpflag2 = false;
+
+    g = 8 * jumpheight / jumptime / jumptime;
+    jumpspeed = 4 * jumpheight / jumptime;
+    speed = jumpdistance / jumptime;
+
 }

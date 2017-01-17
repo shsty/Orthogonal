@@ -36,10 +36,24 @@ void MainApp::KeyDownEvent(SDL_Event * event){
                 SDL_Log("map saved to %s" ,mapname.c_str());
             }
             break;
+        case SDL_SCANCODE_W:
+            if (player.hasgravity) player.jumpflag1 = true;
+            break;
+        case SDL_SCANCODE_UP:
+            if (player.hasgravity) player.jumpflag2 = true;
+            break;
     }
 }
 
 void MainApp::KeyUpEvent(SDL_Event * event){
+    switch (event->key.keysym.scancode){
+        case SDL_SCANCODE_W:
+            if (player.hasgravity) player.jumpflag1 = false;
+            break;
+        case SDL_SCANCODE_UP:
+            if (player.hasgravity) player.jumpflag2 = false;
+            break;
+    }
 }
 
 void MainApp::MouseDownEvent(SDL_Event * event){
