@@ -16,26 +16,35 @@ const SDL_Rect MainApp::blockSpritePos[2] = {
     {16, 0, 16, 16}
 };
 
+const SDL_Rect MainApp::cursorSpritePos[16] = {
+    {0, 0, 16, 16},
+    {0, 16, 16, 16},
+    {0, 32, 16, 16},
+    {0, 48, 16, 16},
+    {16, 0, 16, 16},
+    {16, 16, 16, 16},
+    {16, 32, 16, 16},
+    {16, 48, 16, 16},
+    {32, 0, 16, 16},
+    {32, 16, 16, 16},
+    {32, 32, 16, 16},
+    {32, 48, 16, 16},
+    {48, 0, 16, 16},
+    {48, 16, 16, 16},
+    {48, 32, 16, 16},
+    {48, 48, 16, 16},
+};
+
 void MainApp::OnRender(){
     SDL_RenderClear(ren);
 
     SDL_RenderCopy(ren, bgtex, NULL, NULL);
 
-    SDL_Rect lfieldrect, rfieldrect;
-    int fw = fieldscale * map.size;
-    int fh = fieldscale * map.size;
-    //SDL_QueryTexture(fieldtex, NULL, NULL, &fw, &fh);
-    lfieldrect.w = rfieldrect.w = fw;
-    lfieldrect.h = rfieldrect.h = fh;
-    lfieldrect.x = (screen_width - 2*fw)/3;
-    lfieldrect.y = (screen_height - fh)/2;
-    rfieldrect.x = lfieldrect.x*2 + fw;
-    rfieldrect.y = lfieldrect.y;
-
     SDL_RenderCopy(ren, fieldtex, NULL, &lfieldrect);
     SDL_RenderCopy(ren, fieldtex, NULL, &rfieldrect);
 
-    RenderMap(lfieldrect, rfieldrect);
+    RenderMap();
+    RenderCursor();
 
     RenderPlayer(lfieldrect, player.spritenum1, player.x, player.y);
     RenderPlayer(rfieldrect, player.spritenum2, player.z, player.w);
@@ -53,7 +62,7 @@ void MainApp::RenderPlayer(SDL_Rect fieldrect, int index, float x, float y){
     SDL_RenderCopy(ren, playertex, &playerSpritePos[index], &rect);
 }
 
-void MainApp::RenderMap(const SDL_Rect & lfieldrect, const SDL_Rect & rfieldrect){
+void MainApp::RenderMap(){
     int x = int(player.x);
     int y = int(player.y);
     int z = int(player.z);
@@ -70,11 +79,33 @@ void MainApp::RenderMap(const SDL_Rect & lfieldrect, const SDL_Rect & rfieldrect
         }
 }
 
-void MainApp::RenderBlock(const SDL_Rect & fieldrect, int index, float x, float y){
+void MainApp::RenderBlock(const SDL_Rect & fieldrect, int index, int x, int y){
     SDL_Rect rect;
     rect.w = fieldscale;
     rect.h = fieldscale;
     rect.x = fieldrect.x + fieldscale * x;
     rect.y = fieldrect.y + fieldrect.h - fieldscale * (y+1);
     SDL_RenderCopy(ren, blocktex, &blockSpritePos[blockTypes[index].spritenum], &rect);
+}
+
+void MainApp::RenderCursor(){
+    if (cursor.active1){
+        for (int i = cursor.x1; i <= cursor.x2; ++i)
+        for (int j = cursor.y1; j <= cursor.y2; ++j)
+            RenderCursorBlock(lfieldrect, 0, i, j);
+    }
+    if (cursor.active2){
+        for (int k = cursor.z1; k <= cursor.z2; ++k)
+        for (int l = cursor.w1; l <= cursor.w2; ++l)
+            RenderCursorBlock(rfieldrect, 0, k, l);
+    }
+}
+
+void MainApp::RenderCursorBlock(const SDL_Rect & fieldrect, int spritenum, int x, int y){
+    SDL_Rect rect;
+    rect.w = fieldscale;
+    rect.h = fieldscale;
+    rect.x = fieldrect.x + fieldscale * x;
+    rect.y = fieldrect.y + fieldrect.h - fieldscale * (y+1);
+    SDL_RenderCopy(ren, cursortex, &blockSpritePos[spritenum], &rect);
 }

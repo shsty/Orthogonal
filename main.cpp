@@ -12,15 +12,23 @@ MainApp::MainApp():map(16){
     screen_width = 1096;
     screen_height = 560;
     fieldscale = 32;
+
     window = nullptr;
     ren = nullptr;
+    
     bgtex = nullptr;
     fieldtex = nullptr;
     playertex = nullptr;
     blocktex = nullptr;
+    cursortex = nullptr;
+
     dt = 18/1000.0;
     g = 1.0;
+
     mapname = "assets/test.map";
+
+    cursor.active1 = cursor.active2 = 0;
+    cursor.focus = Cursor::C_None;
 }
 
 MainApp::~MainApp(){
@@ -97,7 +105,18 @@ bool MainApp::OnInit(){
     fieldtex = LoadTexture("field2.png");
     playertex = LoadTexture("player.png");
     blocktex = LoadTexture("blocks.png");
+    cursortex = LoadTexture("cursor.png");
     
+    //setting up fields
+    int fw = fieldscale * map.size;
+    int fh = fieldscale * map.size;
+    lfieldrect.w = rfieldrect.w = fw;
+    lfieldrect.h = rfieldrect.h = fh;
+    lfieldrect.x = (screen_width - 2*fw)/3;
+    lfieldrect.y = (screen_height - fh)/2;
+    rfieldrect.x = lfieldrect.x*2 + fw;
+    rfieldrect.y = lfieldrect.y;
+
     //loading map
     try{
         map.load(mapname);
@@ -138,6 +157,7 @@ void MainApp::OnCleanup(){
     if (fieldtex) SDL_DestroyTexture(fieldtex);
     if (playertex) SDL_DestroyTexture(playertex);
     if (blocktex) SDL_DestroyTexture(blocktex);
+    if (cursortex) SDL_DestroyTexture(cursortex);
     if (ren) SDL_DestroyRenderer(ren);
     if (window) SDL_DestroyWindow(window);
     IMG_Quit();

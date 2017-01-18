@@ -1,6 +1,6 @@
 DIR = bin
 BIN = $(DIR)/main
-OBJS = $(DIR)/main.o $(DIR)/event.o $(DIR)/render.o $(DIR)/loop.o $(DIR)/player.o $(DIR)/map.o
+OBJS = $(DIR)/main.o $(DIR)/event.o $(DIR)/render.o $(DIR)/loop.o $(DIR)/player.o $(DIR)/map.o 
 CXX = g++ -std=c++0x -g
 LIBS = -lSDL2 -lSDL2_image
 

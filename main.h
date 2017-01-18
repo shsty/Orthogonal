@@ -16,6 +16,7 @@ class MainApp{
         static const std::string respath;
         static const SDL_Rect playerSpritePos[];
         static const SDL_Rect blockSpritePos[];
+        static const SDL_Rect cursorSpritePos[];
         static const struct blocktype blockTypes[];
         int screen_width;
         int screen_height;
@@ -31,13 +32,17 @@ class MainApp{
         SDL_Texture * fieldtex;
         SDL_Texture * playertex;
         SDL_Texture * blocktex;
+        SDL_Texture * cursortex;
         SDL_Event quitevent;
 
         Player player;
 
         std::string mapname;
         Map map;
+        SDL_Rect lfieldrect, rfieldrect;
+        struct Cursor cursor;
 
+        //Main structure
         bool OnInit();
         void OnEvent(SDL_Event* event);
         void OnLoop();
@@ -46,17 +51,26 @@ class MainApp{
         void OnExit();
         void OnDelay();
 
+
+        //Renderer functions
         SDL_Texture * LoadTexture(const std::string & imgname);
-
         void RenderPlayer(SDL_Rect fieldrect, int index, float x, float y);
-        void RenderMap(const SDL_Rect & lfieldrect, const SDL_Rect & rfieldrect);
-        void RenderBlock(const SDL_Rect & fieldrect, int index, float x, float y);
+        void RenderMap();
+        void RenderBlock(const SDL_Rect & fieldrect, int index, int x, int y);
+        void RenderCursor();
+        void RenderCursorBlock(const SDL_Rect & fieldrect, int spritenum, int x, int y);
 
+        //Event handler
         void KeyDownEvent(SDL_Event * event);
         void KeyUpEvent(SDL_Event * event);
         void MouseDownEvent(SDL_Event * event);
         void MouseUpEvent(SDL_Event * event);
         void MouseMotionEvent(SDL_Event * event);
+        void CursorStart(int x, int y);
+        void CursorMove(int x, int y);
+        void CursorEnd(int x, int y);
+        enum Cursor::Cfields GetCursorField(int x, int y);
+        void GetCursorCoord(int x, int y, const SDL_Rect & rect, int & u, int & v);
 
     public:
         MainApp();
