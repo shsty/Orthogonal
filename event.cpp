@@ -45,6 +45,10 @@ void MainApp::KeyDownEvent(SDL_Event * event){
         case SDL_SCANCODE_UP:
             if (!event->key.repeat && player.hasgravity) player.jumpflag2 = true;
             break;
+        case SDL_SCANCODE_G:
+            player.hasgravity = !player.hasgravity;
+            player.ground1 = player.ground2 = false;
+            break;
         case SDL_SCANCODE_1:
             if (cursor.active1 && cursor.active2) map.fill(0, cursor.x1, cursor.x2, cursor.y1, cursor.y2, cursor.z1, cursor.z2, cursor.w1, cursor.w2);
             break;
@@ -69,7 +73,6 @@ void MainApp::MouseDownEvent(SDL_Event * event){
     switch (event->button.button){
         case SDL_BUTTON_LEFT:
             CursorStart(event->button.x, event->button.y);
-            SDL_Log("Cursor: %d,%d,%d,%d,%d,%d,%d,%d", cursor.x1, cursor.x2, cursor.y1, cursor.y2, cursor.z1, cursor.z2, cursor.w1, cursor.w2);
             break;
         case SDL_BUTTON_RIGHT:
             cursor.active1 = false;
@@ -82,7 +85,6 @@ void MainApp::MouseUpEvent(SDL_Event * event){
     switch (event->button.button){
         case SDL_BUTTON_LEFT:
             CursorEnd(event->button.x, event->button.y);
-            SDL_Log("Cursor: %d,%d,%d,%d,%d,%d,%d,%d", cursor.x1, cursor.x2, cursor.y1, cursor.y2, cursor.z1, cursor.z2, cursor.w1, cursor.w2);
             break;
     }
 }
@@ -90,7 +92,6 @@ void MainApp::MouseUpEvent(SDL_Event * event){
 void MainApp::MouseMotionEvent(SDL_Event * event){
     if (event->motion.state & SDL_BUTTON_LMASK){
         CursorMove(event->motion.x, event->motion.y);
-        SDL_Log("Cursor: %d,%d,%d,%d,%d,%d,%d,%d", cursor.x1, cursor.x2, cursor.y1, cursor.y2, cursor.z1, cursor.z2, cursor.w1, cursor.w2);
     }
 }
 
