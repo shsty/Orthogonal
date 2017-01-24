@@ -182,6 +182,7 @@ void MainApp::OnLoop(){
             };
     }
     player.y += player.vy * dt;
+    if (player.vy < 0) player.ground1 = false;
 
     if (player.vz < 0){ 
         for (int i = max(0, 1 + floor(player.x1() - 1)); i <= min(-1 + ceil(player.x2()), map.size-1); ++i)
@@ -227,6 +228,7 @@ void MainApp::OnLoop(){
             };
     }
     player.w += player.vw * dt;
+    if (player.vw < 0) player.ground2 = false;
 
 }
 
