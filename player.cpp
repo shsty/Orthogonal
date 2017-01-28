@@ -15,8 +15,8 @@ Player::Player(){
     //things about jumping
     hasgravity = true;
     jumpheight = 3.2;
-    jumptime = 0.8;
-    jumpdistance = 4;
+    jumptime = 0.6;
+    jumpdistance = 5;
     multg = 5;
     ground1 = ground2 = false;
     jumpflag1 = jumpflag2 = false;

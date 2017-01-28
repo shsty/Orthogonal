@@ -149,7 +149,7 @@ SDL_Texture * MainApp::LoadTexture(const std::string & imgname){
 }
 
 void MainApp::OnDelay(){
-    SDL_Delay(18);
+    //SDL_Delay(18);
 }
 
 void MainApp::OnCleanup(){
