@@ -3,6 +3,9 @@
 
 #include <string>
 
+class Player;
+class Renderer;
+
 struct blocktype{
     int passable;
     int spritenum;
@@ -10,6 +13,8 @@ struct blocktype{
 
 class Map{
 public:
+    const static struct blocktype blockTypes[];
+
     int size;
     int bsize;
     int * blocks;
@@ -25,13 +30,8 @@ public:
     void save(const std::string & filename);
 
     void fill(int block, int x1, int x2, int y1, int y2, int z1, int z2, int w1, int w2);
-};
 
-struct Cursor{
-    int x1, x2, y1, y2, z1, z2, w1, w2;
-    int xprev, yprev, zprev, wprev;
-    bool active1, active2;
-    enum Cfields {C_None, C_Field1, C_Field2} focus;
+    void render(Player * player, Renderer * ren);
 };
 
 #endif

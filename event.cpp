@@ -1,4 +1,8 @@
 #include "main.h"
+#include "map.h"
+#include "player.h"
+#include "cursor.h"
+#include "renderer.h"
 
 void MainApp::OnEvent(SDL_Event* event){
     switch (event->type){
@@ -35,25 +39,25 @@ void MainApp::KeyDownEvent(SDL_Event * event){
             break;
         case SDL_SCANCODE_S:
             if (event->key.keysym.mod & KMOD_CTRL){
-                map.save(mapname);
+                map->save(mapname);
                 SDL_Log("map saved to %s" ,mapname.c_str());
             }
             break;
         case SDL_SCANCODE_W:
-            if (!event->key.repeat && player.hasgravity) player.jumpflag1 = true;
+            if (!event->key.repeat && player->hasgravity) player->jumpflag1 = true;
             break;
         case SDL_SCANCODE_UP:
-            if (!event->key.repeat && player.hasgravity) player.jumpflag2 = true;
+            if (!event->key.repeat && player->hasgravity) player->jumpflag2 = true;
             break;
         case SDL_SCANCODE_G:
-            player.hasgravity = !player.hasgravity;
-            player.ground1 = player.ground2 = false;
+            player->hasgravity = !player->hasgravity;
+            player->ground1 = player->ground2 = false;
             break;
         case SDL_SCANCODE_1:
-            if (cursor.active1 && cursor.active2) map.fill(0, cursor.x1, cursor.x2, cursor.y1, cursor.y2, cursor.z1, cursor.z2, cursor.w1, cursor.w2);
+            if (cursor->active1 && cursor->active2) map->fill(0, cursor->x1, cursor->x2, cursor->y1, cursor->y2, cursor->z1, cursor->z2, cursor->w1, cursor->w2);
             break;
         case SDL_SCANCODE_2:
-            if (cursor.active1 && cursor.active2) map.fill(1, cursor.x1, cursor.x2, cursor.y1, cursor.y2, cursor.z1, cursor.z2, cursor.w1, cursor.w2);
+            if (cursor->active1 && cursor->active2) map->fill(1, cursor->x1, cursor->x2, cursor->y1, cursor->y2, cursor->z1, cursor->z2, cursor->w1, cursor->w2);
             break;
     }
 }
@@ -61,10 +65,10 @@ void MainApp::KeyDownEvent(SDL_Event * event){
 void MainApp::KeyUpEvent(SDL_Event * event){
     switch (event->key.keysym.scancode){
         case SDL_SCANCODE_W:
-            if (player.hasgravity) player.jumpflag1 = false;
+            if (player->hasgravity) player->jumpflag1 = false;
             break;
         case SDL_SCANCODE_UP:
-            if (player.hasgravity) player.jumpflag2 = false;
+            if (player->hasgravity) player->jumpflag2 = false;
             break;
     }
 }
@@ -75,8 +79,8 @@ void MainApp::MouseDownEvent(SDL_Event * event){
             CursorStart(event->button.x, event->button.y);
             break;
         case SDL_BUTTON_RIGHT:
-            cursor.active1 = false;
-            cursor.active2 = false;
+            cursor->active1 = false;
+            cursor->active2 = false;
             break;
     }
 }
@@ -96,59 +100,59 @@ void MainApp::MouseMotionEvent(SDL_Event * event){
 }
 
 void MainApp::CursorStart(int x, int y){
-    cursor.focus = GetCursorField(x, y);
-    switch (cursor.focus){
+    cursor->focus = GetCursorField(x, y);
+    switch (cursor->focus){
         case Cursor::C_Field1:
-            cursor.active1 = true;
-            GetCursorCoord(x, y, lfieldrect, cursor.xprev, cursor.yprev);
-            cursor.x1 = cursor.x2 = cursor.xprev;
-            cursor.y1 = cursor.y2 = cursor.yprev;
+            cursor->active1 = true;
+            GetCursorCoord(x, y, renderer->lfieldrect, cursor->xprev, cursor->yprev);
+            cursor->x1 = cursor->x2 = cursor->xprev;
+            cursor->y1 = cursor->y2 = cursor->yprev;
             break;
         case Cursor::C_Field2:
-            cursor.active2 = true;
-            GetCursorCoord(x, y, rfieldrect, cursor.zprev, cursor.wprev);
-            cursor.z1 = cursor.z2 = cursor.zprev;
-            cursor.w1 = cursor.w2 = cursor.wprev;
+            cursor->active2 = true;
+            GetCursorCoord(x, y, renderer->rfieldrect, cursor->zprev, cursor->wprev);
+            cursor->z1 = cursor->z2 = cursor->zprev;
+            cursor->w1 = cursor->w2 = cursor->wprev;
             break;
     }
 }
 
 void MainApp::CursorMove(int x, int y){
     int xcur, ycur;
-    switch (cursor.focus){
+    switch (cursor->focus){
         case Cursor::C_Field1:
-            GetCursorCoord(x, y, lfieldrect, xcur, ycur);
-            cursor.x1 = (xcur<cursor.xprev)?xcur:cursor.xprev;
-            cursor.x2 = (xcur<cursor.xprev)?cursor.xprev:xcur;
-            cursor.y1 = (ycur<cursor.yprev)?ycur:cursor.yprev;
-            cursor.y2 = (ycur<cursor.yprev)?cursor.yprev:ycur;
+            GetCursorCoord(x, y, renderer->lfieldrect, xcur, ycur);
+            cursor->x1 = (xcur<cursor->xprev)?xcur:cursor->xprev;
+            cursor->x2 = (xcur<cursor->xprev)?cursor->xprev:xcur;
+            cursor->y1 = (ycur<cursor->yprev)?ycur:cursor->yprev;
+            cursor->y2 = (ycur<cursor->yprev)?cursor->yprev:ycur;
             break;
         case Cursor::C_Field2:
-            GetCursorCoord(x, y, rfieldrect, xcur, ycur);
-            cursor.z1 = (xcur<cursor.zprev)?xcur:cursor.zprev;
-            cursor.z2 = (xcur<cursor.zprev)?cursor.zprev:xcur;
-            cursor.w1 = (ycur<cursor.wprev)?ycur:cursor.wprev;
-            cursor.w2 = (ycur<cursor.wprev)?cursor.wprev:ycur;
+            GetCursorCoord(x, y, renderer->rfieldrect, xcur, ycur);
+            cursor->z1 = (xcur<cursor->zprev)?xcur:cursor->zprev;
+            cursor->z2 = (xcur<cursor->zprev)?cursor->zprev:xcur;
+            cursor->w1 = (ycur<cursor->wprev)?ycur:cursor->wprev;
+            cursor->w2 = (ycur<cursor->wprev)?cursor->wprev:ycur;
             break;
     }
 }
 
 void MainApp::CursorEnd(int x, int y){
     CursorMove(x, y);
-    cursor.focus = Cursor::C_None;
+    cursor->focus = Cursor::C_None;
 }
 
 enum Cursor::Cfields MainApp::GetCursorField(int x, int y){
-    if ((lfieldrect.x <= x) && (x <= lfieldrect.x + lfieldrect.w) && (lfieldrect.y <= y) && (y <= lfieldrect.y + lfieldrect.h)) return Cursor::C_Field1;
-    if ((rfieldrect.x <= x) && (x <= rfieldrect.x + rfieldrect.w) && (rfieldrect.y <= y) && (y <= rfieldrect.y + rfieldrect.h)) return Cursor::C_Field2;
+    if ((renderer->lfieldrect.x <= x) && (x <= renderer->lfieldrect.x + renderer->lfieldrect.w) && (renderer->lfieldrect.y <= y) && (y <= renderer->lfieldrect.y + renderer->lfieldrect.h)) return Cursor::C_Field1;
+    if ((renderer->rfieldrect.x <= x) && (x <= renderer->rfieldrect.x + renderer->rfieldrect.w) && (renderer->rfieldrect.y <= y) && (y <= renderer->rfieldrect.y + renderer->rfieldrect.h)) return Cursor::C_Field2;
     return Cursor::C_None;
 }
 
 void MainApp::GetCursorCoord(int x, int y, const SDL_Rect & rect, int & u, int & v){
-    u = (x - rect.x)/fieldscale;
-    v = (rect.y + rect.h - y)/fieldscale;
+    u = (x - rect.x)/renderer->fieldscale;
+    v = (rect.y + rect.h - y)/renderer->fieldscale;
     if (u < 0) u = 0;
     if (v < 0) v = 0;
-    if (u >= map.size) u = map.size - 1;
-    if (v >= map.size) v = map.size - 1;
+    if (u >= map->size) u = map->size - 1;
+    if (v >= map->size) v = map->size - 1;
 }

@@ -1,4 +1,5 @@
 #include "player.h"
+#include "renderer.h"
 #include <SDL2/SDL.h>
 
 Player::Player(){
@@ -25,4 +26,9 @@ Player::Player(){
     jumpspeed = 4 * jumpheight / jumptime;
     speed = jumpdistance / jumptime;
 
+}
+
+void Player::render(Renderer * ren){
+    ren->playertex->draw(ren->lfieldrect, x + boxx, y + boxy, width, height, spritenum1);
+    ren->playertex->draw(ren->rfieldrect, z + boxx, w + boxy, width, height, spritenum2);
 }

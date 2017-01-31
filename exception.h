@@ -4,6 +4,7 @@
 #include <exception>
 #include <stdexcept>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include <GL/gl.h>
 
 const int ERRBUFSIZE=1024;
@@ -26,4 +27,5 @@ public:
 };
 
 #endif
+
 

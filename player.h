@@ -1,6 +1,8 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
+class Renderer;
+
 class Player{
 public:
     float x, y, z, w;
@@ -38,6 +40,7 @@ public:
     float w2(){return w + boxy + height;}
     void w2_set(float v){w = v - boxy - height;}
 
+    void render(Renderer * ren);
 };
 
 #endif

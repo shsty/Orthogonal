@@ -2,7 +2,15 @@
 #include <stdexcept>
 #include <cstdio>
 #include <cstring>
+#include <SDL2/SDL.h>
 #include "map.h"
+#include "player.h"
+#include "renderer.h"
+
+const struct blocktype Map::blockTypes[2] = {
+    {1, 0},
+    {0, 1}
+};
 
 Map::Map(int _size){
     size = _size;
@@ -76,4 +84,21 @@ void Map::fill(int block, int x1, int x2, int y1, int y2, int z1, int z2, int w1
     for (int k = z1; k <= z2; ++k)
     for (int l = w1; l <= w2; ++l)
         set(block, i, j, k, l);
+}
+
+void Map::render(Player * player, Renderer * ren){
+    int x = int(player->x);
+    int y = int(player->y);
+    int z = int(player->z);
+    int w = int(player->w);
+    for (int i = 0; i < size; ++i)
+        for (int j = 0; j < size; ++j){
+            int b = get(i, j, z, w);
+            ren->blocktex->draw(ren->lfieldrect, i, j, 1, 1, b);
+        }
+    for (int i = 0; i < size; ++i)
+        for (int j = 0; j < size; ++j){
+            int b = get(x, y, i, j);
+            ren->blocktex->draw(ren->rfieldrect, i, j, 1, 1, b);
+        }
 }

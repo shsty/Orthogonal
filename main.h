@@ -7,40 +7,29 @@
 #include <SDL2/SDL_image.h>
 #include <GL/gl.h>
 #include "exception.h"
-#include "player.h"
-#include "map.h"
+#include "cursor.h"
+
+class Map;
+class Player;
+class Renderer;
+class Cursor;
+class Texture;
 
 class MainApp{
     private:
-        static const char * WINDOW_NAME;
-        static const std::string respath;
-        static const SDL_Rect playerSpritePos[];
-        static const SDL_Rect blockSpritePos[];
-        static const SDL_Rect cursorSpritePos[];
-        static const struct blocktype blockTypes[];
-        int screen_width;
-        int screen_height;
-        int fieldscale;
+        static const int mapSize;
         float dt;
         float g;
 
+        SDL_Event quitevent;
         enum {S_STOP, S_RUNNING} state;
 
-        SDL_Window * window;
-        SDL_Renderer * ren;
-        SDL_Texture * bgtex;
-        SDL_Texture * fieldtex;
-        SDL_Texture * playertex;
-        SDL_Texture * blocktex;
-        SDL_Texture * cursortex;
-        SDL_Event quitevent;
-
-        Player player;
+        Renderer * renderer;
+        Player * player;
+        Map * map;
+        Cursor * cursor;
 
         std::string mapname;
-        Map map;
-        SDL_Rect lfieldrect, rfieldrect;
-        struct Cursor cursor;
 
         //Main structure
         bool OnInit();
@@ -50,15 +39,6 @@ class MainApp{
         void OnCleanup();
         void OnExit();
         void OnDelay();
-
-
-        //Renderer functions
-        SDL_Texture * LoadTexture(const std::string & imgname);
-        void RenderPlayer(SDL_Rect fieldrect, int index, float x, float y);
-        void RenderMap();
-        void RenderBlock(const SDL_Rect & fieldrect, int index, int x, int y);
-        void RenderCursor();
-        void RenderCursorBlock(const SDL_Rect & fieldrect, int spritenum, int x, int y);
 
         //Event handler
         void KeyDownEvent(SDL_Event * event);
