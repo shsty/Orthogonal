@@ -18,8 +18,8 @@ class Texture;
 class MainApp{
     private:
         static const int mapSize;
-        float dt;
-        float g;
+        double dt;
+        double g;
 
         SDL_Event quitevent;
         enum {S_STOP, S_RUNNING} state;
@@ -49,7 +49,7 @@ class MainApp{
         void CursorStart(int x, int y);
         void CursorMove(int x, int y);
         void CursorEnd(int x, int y);
-        enum Cursor::Cfields GetCursorField(int x, int y);
+        enum Cfields GetCursorField(int x, int y);
         void GetCursorCoord(int x, int y, const SDL_Rect & rect, int & u, int & v);
 
     public:

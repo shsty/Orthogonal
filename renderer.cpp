@@ -6,9 +6,23 @@ std::string Renderer::respath  = "sketch/";
 
 Renderer * Texture::renderer = nullptr;
 
-const SDL_Rect Renderer::blockSpritePos[2] = {
+const SDL_Rect Renderer::blockSpritePos[16] = {
     {0, 0, 16, 16},
-    {16, 0, 16, 16}
+    {16, 0, 16, 16},
+    {32, 0, 16, 16},
+    {48, 0, 16, 16},
+    {0, 16, 16, 16},
+    {16, 16, 16, 16},
+    {32, 16, 16, 16},
+    {48, 16, 16, 16},
+    {0, 32, 16, 16},
+    {16, 32, 16, 16},
+    {32, 32, 16, 16},
+    {48, 32, 16, 16},
+    {0, 48, 16, 16},
+    {16, 48, 16, 16},
+    {32, 48, 16, 16},
+    {48, 48, 16, 16},
 };
 
 const SDL_Rect Renderer::playerSpritePos[8] = {
@@ -24,27 +38,28 @@ const SDL_Rect Renderer::playerSpritePos[8] = {
 
 const SDL_Rect Renderer::cursorSpritePos[16] = {
     {0, 0, 16, 16},
-    {0, 16, 16, 16},
-    {0, 32, 16, 16},
-    {0, 48, 16, 16},
-    {16, 0, 16, 16},
-    {16, 16, 16, 16},
-    {16, 32, 16, 16},
-    {16, 48, 16, 16},
-    {32, 0, 16, 16},
-    {32, 16, 16, 16},
-    {32, 32, 16, 16},
-    {32, 48, 16, 16},
     {48, 0, 16, 16},
+    {16, 0, 16, 16},
+    {32, 0, 16, 16},
+    {0, 16, 16, 16},
     {48, 16, 16, 16},
-    {48, 32, 16, 16},
+    {16, 16, 16, 16},
+    {32, 16, 16, 16},
+    {0, 48, 16, 16},
     {48, 48, 16, 16},
+    {16, 48, 16, 16},
+    {32, 48, 16, 16},
+    {0, 32, 16, 16},
+    {48, 32, 16, 16},
+    {16, 32, 16, 16},
+    {32, 32, 16, 16},
 };
 
-Renderer::Renderer(int mapSize){
-    screen_width = 1096;
-    screen_height = 560;
-    fieldscale = 32;
+Renderer::Renderer(int _mapSize){
+    mapSize = _mapSize;
+    fieldscale = 48;
+    screen_width = (2 * mapSize + 2.25) * fieldscale;
+    screen_height = (mapSize + 1.5) * fieldscale;
 
     window = nullptr;
     ren = nullptr;
@@ -84,6 +99,7 @@ Renderer::Renderer(int mapSize){
     //Creating renderer
     ren = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     if (ren == nullptr) throw SDL_Exception();
+
     Texture::renderer = this;
 
     //loading images
@@ -125,7 +141,22 @@ void Renderer::present(){
     SDL_RenderPresent(ren);
 }
 
-Texture::Texture(const std::string & texfile, const SDL_Rect * _spriteRects, int _spriteCount){
+enum Cfields Renderer::GetCursorField(int x, int y){
+    if ((lfieldrect.x <= x) && (x <= lfieldrect.x + lfieldrect.w) && (lfieldrect.y <= y) && (y <= lfieldrect.y + lfieldrect.h)) return C_Field1;
+    if ((rfieldrect.x <= x) && (x <= rfieldrect.x + rfieldrect.w) && (rfieldrect.y <= y) && (y <= rfieldrect.y + rfieldrect.h)) return C_Field2;
+    return C_None;
+}
+
+void Renderer::GetCursorCoord(int x, int y, const SDL_Rect & rect, int & u, int & v){
+    u = (x - rect.x)/fieldscale;
+    v = (rect.y + rect.h - y)/fieldscale;
+    if (u < 0) u = 0;
+    if (v < 0) v = 0;
+    if (u >= mapSize) u = mapSize - 1;
+    if (v >= mapSize) v = mapSize - 1;
+}
+
+Texture::Texture(const std::string & texfile, const SDL_Rect * _spriteRects, int _spriteCount, SDL_BlendMode blendMode){
     spriteRects = _spriteRects;
     spriteCount = _spriteCount;
 
@@ -138,18 +169,27 @@ Texture::Texture(const std::string & texfile, const SDL_Rect * _spriteRects, int
     tex = SDL_CreateTextureFromSurface(renderer->ren, img);
     SDL_FreeSurface(img);
     if (tex == nullptr) throw SDL_Exception();
+
+    //setting blend mode
+    if (SDL_SetTextureBlendMode(tex, blendMode)) throw SDL_Exception();
 }
 
 Texture::~Texture(){
     if (tex) SDL_DestroyTexture(tex);
 }
 
-void Texture::draw(const SDL_Rect & rect, double x, double y, double w, double h, int index){
+void Texture::draw(const SDL_Rect & rect, double x, double y, double w, double h, int index, double alpha){
+    int a = (int)(alpha * 256);
+    if (a < 0) a = 0;
+    if (a > 255) a = 255;
+    if (SDL_SetTextureAlphaMod(tex, a)) throw SDL_Exception();
+
     const SDL_Rect * srect;
     if (spriteRects) {
         if ((index < 0 || index >= spriteCount)) throw std::runtime_error("Error: Sprite number out of bound!");
         srect = &spriteRects[index];
     } else srect = nullptr;
+
     SDL_Rect drect;
     drect.x = rect.x + renderer->fieldscale * x;
     drect.y = rect.y + rect.h - renderer->fieldscale * (y + h);

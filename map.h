@@ -25,6 +25,7 @@ public:
 
     void clear();
     int get(int x, int y, int z, int w);
+    int getspritenum(int x, int y, int z, int w);
     void set(int block, int x, int y, int z, int w);
     void load(const std::string & filename);
     void save(const std::string & filename);

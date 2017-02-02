@@ -23,7 +23,7 @@ MainApp::MainApp(){
     cursor = new Cursor();
 
     cursor->active1 = cursor->active2 = 0;
-    cursor->focus = Cursor::C_None;
+    cursor->focus = C_None;
 }
 
 MainApp::~MainApp(){
@@ -94,10 +94,15 @@ void MainApp::OnRender(){
     renderer->fieldtex->draw(&renderer->rfieldrect);
 
     map->render(player, renderer);
-    cursor->render(renderer);
     player->render(renderer);
+    cursor->render(renderer);
 
     renderer->present();
+}
+
+void MainApp::OnLoop(){
+    const Uint8* keystate = SDL_GetKeyboardState(NULL);
+    player->move(keystate, map, dt);
 }
 
 void MainApp::OnDelay(){
