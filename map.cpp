@@ -119,7 +119,7 @@ void Map::render(Player * player, Renderer * ren){
             ssum += s1;
             for (int x = 0; x < size; ++x)
                 for (int y = 0; y < size; ++y)
-                    ren->blocktex->draw(ren->lfieldrect, x, y, 1, 1, getspritenum(x, y, z, w), s1/ssum);
+                    ren->tex["block"]->draw(ren->lfieldrect, x, y, 1, 1, getspritenum(x, y, z, w), s1/ssum);
         }
     ssum = 0;
     for (int x = (int)floor(x1); x < (int)ceil(x2); ++x)
@@ -128,6 +128,6 @@ void Map::render(Player * player, Renderer * ren){
             ssum += s1;
             for (int z = 0; z < size; ++z)
                 for (int w = 0; w < size; ++w)
-                    ren->blocktex->draw(ren->rfieldrect, z, w, 1, 1, getspritenum(x, y, z, w), s1/ssum);
+                    ren->tex["block"]->draw(ren->rfieldrect, z, w, 1, 1, getspritenum(x, y, z, w), s1/ssum);
         }
 }

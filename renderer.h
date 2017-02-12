@@ -4,6 +4,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <string>
+#include <map>
 
 class Renderer;
 #ifndef CFIELDS
@@ -15,6 +16,7 @@ class Texture{
 public:
     static Renderer * renderer;
 
+    std::string fileName;
     SDL_Texture * tex;
     const SDL_Rect * spriteRects;
     int spriteCount;
@@ -30,11 +32,8 @@ class Renderer{
 public:
     SDL_Window * window;
     SDL_Renderer * ren;
-    Texture * bgtex;
-    Texture * fieldtex;
-    Texture * playertex;
-    Texture * blocktex;
-    Texture * cursortex;
+    typedef std::map<std::string, Texture *> TexMap;
+    TexMap tex;
 
     static const SDL_Rect blockSpritePos[];
     static const SDL_Rect playerSpritePos[];

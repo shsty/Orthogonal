@@ -89,9 +89,9 @@ bool MainApp::OnInit(){
 void MainApp::OnRender(){
     renderer->clear();
 
-    renderer->bgtex->draw(NULL);
-    renderer->fieldtex->draw(&renderer->lfieldrect);
-    renderer->fieldtex->draw(&renderer->rfieldrect);
+    renderer->tex["background"]->draw(NULL);
+    renderer->tex["field"]->draw(&renderer->lfieldrect);
+    renderer->tex["field"]->draw(&renderer->rfieldrect);
 
     map->render(player, renderer);
     player->render(renderer);

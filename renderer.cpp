@@ -63,12 +63,6 @@ Renderer::Renderer(int _mapSize){
 
     window = nullptr;
     ren = nullptr;
-    
-    bgtex = nullptr;
-    fieldtex = nullptr;
-    playertex = nullptr;
-    blocktex = nullptr;
-    cursortex = nullptr;
 
     SDL_version sdlversion;
     SDL_GetVersion(&sdlversion);
@@ -103,11 +97,11 @@ Renderer::Renderer(int _mapSize){
     Texture::renderer = this;
 
     //loading images
-    bgtex = new Texture(respath + "background2.png");
-    fieldtex = new Texture(respath + "field2.png");
-    playertex = new Texture(respath + "player.png", playerSpritePos, (sizeof playerSpritePos) / (sizeof *playerSpritePos));
-    blocktex = new Texture(respath + "blocks.png", blockSpritePos, (sizeof blockSpritePos) / (sizeof *blockSpritePos));
-    cursortex = new Texture(respath + "cursor.png", cursorSpritePos, (sizeof cursorSpritePos) / (sizeof *cursorSpritePos));
+    tex["background"] = new Texture(respath + "background2.png");
+    tex["field"] = new Texture(respath + "field2.png");
+    tex["player"] = new Texture(respath + "player.png", playerSpritePos, (sizeof playerSpritePos) / (sizeof *playerSpritePos));
+    tex["block"] = new Texture(respath + "blocks.png", blockSpritePos, (sizeof blockSpritePos) / (sizeof *blockSpritePos));
+    tex["cursor"] = new Texture(respath + "cursor.png", cursorSpritePos, (sizeof cursorSpritePos) / (sizeof *cursorSpritePos));
     
     //setting up fields
     int fw = fieldscale * mapSize;
@@ -121,11 +115,8 @@ Renderer::Renderer(int _mapSize){
 }
 
 Renderer::~Renderer(){
-    if (bgtex) delete bgtex;
-    if (fieldtex) delete fieldtex;
-    if (playertex) delete playertex;
-    if (blocktex) delete blocktex;
-    if (cursortex) delete cursortex;
+    for (TexMap::iterator i = tex.begin(); i != tex.end(); ++i)
+        if (i->second) delete i->second;
     Texture::renderer = nullptr;
     if (ren) SDL_DestroyRenderer(ren);
     if (window) SDL_DestroyWindow(window);
@@ -157,12 +148,12 @@ void Renderer::GetCursorCoord(int x, int y, const SDL_Rect & rect, int & u, int 
 }
 
 Texture::Texture(const std::string & texfile, const SDL_Rect * _spriteRects, int _spriteCount, SDL_BlendMode blendMode){
+    fileName = texfile;
     spriteRects = _spriteRects;
     spriteCount = _spriteCount;
 
     //Loading resources
-    std::string imgpath = texfile;
-    SDL_Surface *img = IMG_Load(texfile.c_str());
+    SDL_Surface *img = IMG_Load(fileName.c_str());
     if (img == nullptr) throw IMG_Exception();
 
     //convert surface to texture

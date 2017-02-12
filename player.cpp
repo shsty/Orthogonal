@@ -30,8 +30,8 @@ Player::Player(){
 }
 
 void Player::render(Renderer * ren){
-    ren->playertex->draw(ren->lfieldrect, x + boxx, y + boxy, width, height, spritenum1);
-    ren->playertex->draw(ren->rfieldrect, z + boxx, w + boxy, width, height, spritenum2);
+    ren->tex["player"]->draw(ren->lfieldrect, x + boxx, y + boxy, width, height, spritenum1);
+    ren->tex["player"]->draw(ren->rfieldrect, z + boxx, w + boxy, width, height, spritenum2);
 }
 
 inline int min(int a, int b){

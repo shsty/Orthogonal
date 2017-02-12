@@ -10,7 +10,7 @@ void Cursor::render(Renderer * ren){
             if (i != x2) index += 2;
             if (j != y1) index += 4;
             if (j != y2) index += 8;
-            ren->cursortex->draw(ren->lfieldrect, i, j, 1, 1, index);
+            ren->tex["cursor"]->draw(ren->lfieldrect, i, j, 1, 1, index);
         }
     }
     if (active2){
@@ -21,7 +21,7 @@ void Cursor::render(Renderer * ren){
             if (k != z2) index += 2;
             if (l != w1) index += 4;
             if (l != w2) index += 8;
-            ren->cursortex->draw(ren->rfieldrect, k, l, 1, 1, index);
+            ren->tex["cursor"]->draw(ren->rfieldrect, k, l, 1, 1, index);
         }
     }
 }
