@@ -1,7 +1,8 @@
 #ifndef CURSOR_H
 #define CURSOR_H
 
-class Renderer;
+#include "declaration.h"
+
 #ifndef CFIELDS
 #define CFIELDS
 enum Cfields {C_None, C_Field1, C_Field2};

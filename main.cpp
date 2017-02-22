@@ -47,6 +47,7 @@ int MainApp::OnExecute() {
             OnRender();
             OnDelay();
         }
+        map->save(mapname);
     }
     catch (SDL_Exception & e){
         printf("%s", e.what());
@@ -62,6 +63,9 @@ int MainApp::OnExecute() {
 
 
 int main(int argc, char* argv[]) {
+    if (argc >= 2){
+        mainApp.mapname = std::string("assets/test") + argv[1] + ".map";
+    }
     return mainApp.OnExecute();
 }
 
@@ -72,6 +76,7 @@ bool MainApp::OnInit(){
     //loading map
     try{
         map->load(mapname);
+        player->init(map);
     }
     catch (std::exception & e){
         SDL_Log(e.what());
@@ -102,7 +107,8 @@ void MainApp::OnRender(){
 
 void MainApp::OnLoop(){
     const Uint8* keystate = SDL_GetKeyboardState(NULL);
-    player->move(keystate, map, dt);
+    player->react(keystate, dt);
+    player->move(map, dt);
 }
 
 void MainApp::OnDelay(){

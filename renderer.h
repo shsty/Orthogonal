@@ -5,8 +5,8 @@
 #include <SDL2/SDL_image.h>
 #include <string>
 #include <map>
+#include "declaration.h"
 
-class Renderer;
 #ifndef CFIELDS
 #define CFIELDS
 enum Cfields {C_None, C_Field1, C_Field2};

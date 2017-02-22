@@ -38,10 +38,8 @@ void MainApp::KeyDownEvent(SDL_Event * event){
             SDL_PushEvent(&quitevent);
             break;
         case SDL_SCANCODE_S:
-            if (event->key.keysym.mod & KMOD_CTRL){
+            if (event->key.keysym.mod & KMOD_CTRL)
                 map->save(mapname);
-                SDL_Log("map saved to %s" ,mapname.c_str());
-            }
             break;
         case SDL_SCANCODE_W:
             if (!event->key.repeat && player->hasgravity) player->jumpflag1 = true;

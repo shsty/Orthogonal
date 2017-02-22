@@ -1,15 +1,25 @@
 DIR = bin
 BIN = $(DIR)/main
-OBJS = $(DIR)/main.o $(DIR)/event.o $(DIR)/player.o $(DIR)/map.o $(DIR)/cursor.o $(DIR)/renderer.o $(DIR)/block.o
+LNK = game
+SOURCES = $(wildcard *.cpp)
+HEADERS = $(wildcard *.h)
+OBJS = $(SOURCES:%.cpp=$(DIR)/%.o)
+DEP = makefile.dep
 CXX = g++ -std=c++0x -g
-LIBS = -lSDL2 -lSDL2_image
+LIBS = -lSDL2 -lSDL2_image -ljsoncpp
 
 .PHONY: all clean test
 
-all: $(BIN)
+all: $(BIN) $(LNK)
 
-$(BIN): $(DIR) $(OBJS)
+$(LNK): $(BIN)
+	ln -sf $< $@
+
+$(BIN): $(DIR) $(OBJS) $(DEP)
 	$(CXX) $(OBJS) $(LIBS) -o$@
+
+$(DEP): $(SOURCES) $(HEADERS)
+	@g++ -MM $(SOURCES) | sed "s/^.*\.o/$(DIR)\/&/" > $(DEP)
 
 $(DIR):
 	mkdir $@
@@ -17,16 +27,7 @@ $(DIR):
 $(OBJS): $(DIR)/%.o: %.cpp
 	$(CXX) -c $< -o$@
 
-main.h: exception.h cursor.h
-	touch $@
-
-$(DIR)/main.o: main.h map.h player.h cursor.h renderer.h
-$(DIR)/event.o: main.h map.h player.h cursor.h renderer.h
-$(DIR)/renderer.o: renderer.h exception.h
-$(DIR)/map.o: map.h player.h renderer.h
-$(DIR)/player.o: player.h renderer.h
-$(DIR)/cursor.o: cursor.h renderer.h
-$(DIR)/block.o: block.h player.h
+include $(DEP)
 
 test: $(BIN)
 	./$(BIN)
@@ -36,3 +37,4 @@ debug: $(BIN)
 
 clean: 
 	rm -v $(BIN) $(OBJS)
+

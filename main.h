@@ -8,54 +8,48 @@
 #include <GL/gl.h>
 #include "exception.h"
 #include "cursor.h"
-
-class Map;
-class Player;
-class Renderer;
-class Cursor;
-class Texture;
+#include "declaration.h"
 
 class MainApp{
-    private:
-        static const int mapSize;
-        double dt;
-        double g;
+public:
+    static const int mapSize;
+    double dt;
+    double g;
 
-        SDL_Event quitevent;
-        enum {S_STOP, S_RUNNING} state;
+    SDL_Event quitevent;
+    enum {S_STOP, S_RUNNING} state;
 
-        Renderer * renderer;
-        Player * player;
-        Map * map;
-        Cursor * cursor;
+    Renderer * renderer;
+    Player * player;
+    Map * map;
+    Cursor * cursor;
 
-        std::string mapname;
+    std::string mapname;
 
-        //Main structure
-        bool OnInit();
-        void OnEvent(SDL_Event* event);
-        void OnLoop();
-        void OnRender();
-        void OnCleanup();
-        void OnExit();
-        void OnDelay();
+    //Main structure
+    bool OnInit();
+    void OnEvent(SDL_Event* event);
+    void OnLoop();
+    void OnRender();
+    void OnCleanup();
+    void OnExit();
+    void OnDelay();
 
-        //Event handler
-        void KeyDownEvent(SDL_Event * event);
-        void KeyUpEvent(SDL_Event * event);
-        void MouseDownEvent(SDL_Event * event);
-        void MouseUpEvent(SDL_Event * event);
-        void MouseMotionEvent(SDL_Event * event);
-        void CursorStart(int x, int y);
-        void CursorMove(int x, int y);
-        void CursorEnd(int x, int y);
-        enum Cfields GetCursorField(int x, int y);
-        void GetCursorCoord(int x, int y, const SDL_Rect & rect, int & u, int & v);
+    //Event handler
+    void KeyDownEvent(SDL_Event * event);
+    void KeyUpEvent(SDL_Event * event);
+    void MouseDownEvent(SDL_Event * event);
+    void MouseUpEvent(SDL_Event * event);
+    void MouseMotionEvent(SDL_Event * event);
+    void CursorStart(int x, int y);
+    void CursorMove(int x, int y);
+    void CursorEnd(int x, int y);
+    enum Cfields GetCursorField(int x, int y);
+    void GetCursorCoord(int x, int y, const SDL_Rect & rect, int & u, int & v);
 
-    public:
-        MainApp();
-        ~MainApp();
-        int OnExecute();
+    MainApp();
+    ~MainApp();
+    int OnExecute();
 };
 
 #endif

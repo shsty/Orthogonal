@@ -1,74 +1,110 @@
 #include <exception>
 #include <stdexcept>
-#include <cstdio> 
+#include <fstream>
 #include <cstring> 
+#include <cmath>
 #include <SDL2/SDL.h> 
+#include <json/json.h>
+
 #include "map.h"
 #include "player.h"
 #include "renderer.h"
+#include "block.h"
 
-const struct blocktype Map::blockTypes[16] = {
-    {1, 0},
-    {0, 1},
-    {0, 1},
-    {0, 1},
-    {0, 1},
-    {0, 1},
-    {0, 1},
-    {0, 1},
-    {0, 1},
-    {0, 1},
-    {0, 1},
-    {0, 1},
-    {0, 1},
-    {0, 1},
-    {0, 1},
-    {0, 1}
-};
+using std::min;
+using std::max;
 
 Map::Map(int _size){
+    version = 1;
+    update = false;
+    initBlockTypes();
+
     size = _size;
     bsize = size * size * size * size;
-    version = 1;
-    blocks = new int[bsize];
-    memset(blocks, 0, bsize*sizeof(int));
+    blocks.resize(bsize, 0);
+
+    initpos.x = 0.5;
+    initpos.y = size - 1;
+    initpos.z = 0.5;
+    initpos.w = size - 1;
 }
 
 Map::~Map(){
-    delete[] blocks;
+}
+
+void Map::initBlockTypes(){
+    clearBlockTypes();
+    blockTypes.push_back(new B_Air);
+    blockTypes.push_back(new B_Solid);
+    blockTypes.push_back(new B_Spike);
+}
+
+void Map::clearBlockTypes(){
+    for (BlockArray::iterator i = blockTypes.begin(); i != blockTypes.end(); ++i)
+        if ((*i) != nullptr) delete (*i);
+    blockTypes.clear();
 }
 
 void Map::clear(){
-    memset(blocks, 0, bsize*sizeof(int));
+    blocks.resize(bsize, 0);
 }
 
 void Map::load(const std::string & filename){
-    FILE* f = fopen(filename.c_str(), "r");
-    if (f == nullptr) throw std::runtime_error("I/O error: " + filename + " : " + strerror(errno));
-    if (!fscanf(f, "%d", &version)) {
-        fclose(f);
-        throw std::runtime_error("I/O error: " + filename + " : malformed data");
+    std::ifstream f;
+    f.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+    f.open(filename);
+
+    int fileversion = 0;
+    Json::Value json;
+    f >> fileversion;
+    switch (fileversion){
+        case 1:
+            for (int i = 0; i < bsize; ++i) f >> blocks[i];
+            break;
+        case 2:
+            f >> json;
+            fromJson(json);
+            break;
+        default:
+            throw std::runtime_error("I/O error: " + filename + " : cannot identify file format");
+            break;
     }
 
-    for (int i = 0; i < bsize; ++i){
-        if (!fscanf(f, "%d", &blocks[i])){
-            fclose(f);
-            throw std::runtime_error("I/O error: " + filename + " : malformed data");
-        }
-    }
+    if (!update && (fileversion < version)) version = fileversion;
 
-    fclose(f);
+    f.close();
 }
 
 void Map::save(const std::string & filename){
-    FILE* f = fopen(filename.c_str(), "w");
-    if (f == nullptr) throw std::runtime_error("I/O error: " + filename + " : " + strerror(errno));
+    std::ofstream f;
+    f.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+    f.open(filename);
 
-    fprintf(f, "%d\n", version);
-    for (int i = 0; i < bsize; ++i){
-        fprintf(f, "%d ", blocks[i]);
+    f << version << std::endl;
+    switch (version){
+        case 1:
+            for (int i = 0; i < bsize; ++i) f << blocks[i] << " ";
+            f << std::endl;
+            break;
+        case 2:
+            f << toJson();
+            f << std::endl;
+            break;
+        default:
+            throw std::runtime_error("Invalid map version number");
+            break;
     }
-    fclose(f);
+
+    f.close();
+    SDL_Log("map saved to %s" , filename.c_str());
+}
+
+Json::Value Map::toJson(){
+    Json::Value json;
+    return json;
+}
+
+void Map::fromJson(Json::Value json){
 }
 
 int Map::get(int x, int y, int z, int w){
@@ -78,10 +114,6 @@ int Map::get(int x, int y, int z, int w){
             (w < 0) || (w >= size))
         throw std::runtime_error("Runtime Error: map out of bound!");
     return blocks[((x*size + y)*size + z)*size + w];
-}
-
-int Map::getspritenum(int x, int y, int z, int w){
-    return blockTypes[get(x, y, z, w)].spritenum;
 }
 
 void Map::set(int block, int x, int y, int z, int w){
@@ -104,9 +136,6 @@ void Map::fill(int block, int x1, int x2, int y1, int y2, int z1, int z2, int w1
         set(block, i, j, k, l);
 }
 
-inline double min(double a, double b){return (a>b)?b:a;}
-inline double max(double a, double b){return (a>b)?a:b;}
-
 void Map::render(Player * player, Renderer * ren){
     double x1 = player->x1(), x2 = player->x2();
     double y1 = player->y1(), y2 = player->y2();
@@ -115,19 +144,19 @@ void Map::render(Player * player, Renderer * ren){
     double s1, ssum = 0;
     for (int z = (int)floor(z1); z < (int)ceil(z2); ++z)
         for (int w = (int)floor(w1); w < (int)ceil(w2); ++w){
-            s1 = (min(z+1, z2) - max(z, z1)) * (min(w+1, w2) - max(w, w1));
+            s1 = (min((double)z+1, z2) - max((double)z, z1)) * (min((double)w+1, w2) - max((double)w, w1));
             ssum += s1;
             for (int x = 0; x < size; ++x)
                 for (int y = 0; y < size; ++y)
-                    ren->tex["block"]->draw(ren->lfieldrect, x, y, 1, 1, getspritenum(x, y, z, w), s1/ssum);
+                    getBlockType(x, y, z, w)->renderLeft(ren, x, y, s1/ssum);
         }
     ssum = 0;
     for (int x = (int)floor(x1); x < (int)ceil(x2); ++x)
         for (int y = (int)floor(y1); y < (int)ceil(y2); ++y){
-            s1 = (min(x+1, x2) - max(x, x1)) * (min(y+1, y2) - max(y, y1));
+            s1 = (min((double)x+1, x2) - max((double)x, x1)) * (min((double)y+1, y2) - max((double)y, y1));
             ssum += s1;
             for (int z = 0; z < size; ++z)
                 for (int w = 0; w < size; ++w)
-                    ren->tex["block"]->draw(ren->rfieldrect, z, w, 1, 1, getspritenum(x, y, z, w), s1/ssum);
+                    getBlockType(x, y, z, w)->renderRight(ren, z, w, s1/ssum);
         }
 }
