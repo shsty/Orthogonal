@@ -14,8 +14,12 @@ public:
     double g;
     bool ground1, ground2;
 
+    Map * map;
+
     std::string lSpriteName, rSpriteName;
     int lSpriteNum, rSpriteNum;
+
+    Action::Action * actions;
 
     double x1(){return pos.x + box.x1;}
     void x1_set(double v){pos.x = v - box.x1;}
@@ -37,9 +41,35 @@ public:
     double w2(){return pos.w + box.w2;}
     void w2_set(double v){pos.w = v - box.w2;}
 
-    Object():pos(), v(), box(){}
+    Object(Map * _map);
+    ~Object();
+    void clearActions(Action::Action * _actions);
+    Object & addAction(Action::Action * action);
     virtual void render(Renderer * ren);
-    virtual void move(Map * map, double dt);
+    virtual void update();
+    
 };
+
+namespace Action{
+
+    class Action{
+    public:
+        Object * obj;
+        virtual void act() = 0;
+        virtual void chainact();
+        Action * next;
+    };
+
+    class boundaryDetect:public Action{
+    public:
+        virtual void act();
+    };
+
+    class blockDetectAndMove:public boundaryDetect{
+    public:
+        virtual void act();
+    };
+
+}
 
 #endif

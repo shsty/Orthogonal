@@ -7,15 +7,11 @@
 #include <SDL2/SDL_image.h>
 #include <GL/gl.h>
 #include "exception.h"
-#include "cursor.h"
 #include "declaration.h"
+#include "cursor.h"
 
 class MainApp{
 public:
-    static const int mapSize;
-    double dt;
-    double g;
-
     SDL_Event quitevent;
     enum {S_STOP, S_RUNNING} state;
 

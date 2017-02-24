@@ -9,24 +9,27 @@
 
 class Map{
 public:
-    typedef std::vector<BlockType *> BlockArray;
+    typedef std::vector<BlockType::BlockType *> BlockArray;
     BlockArray blockTypes;
 
     int size;
     int bsize;
     std::vector<int> blocks;
     int version;
-    bool update;
+    bool updateVersion;
 
+    double dt;
+
+    bool fixEntrance;
     vec4double initpos;
 
-    Map(int _size);
+    Map();
     ~Map();
 
     void clear();
     int get(int x, int y, int z, int w);
     int get(vec4int v){return get(v.x, v.y, v.z, v.w);}
-    BlockType * getBlockType(int x, int y, int z, int w){return blockTypes[get(x, y, z, w)];}
+    BlockType::BlockType * getBlockType(int x, int y, int z, int w){return blockTypes[get(x, y, z, w)];}
     void set(int block, int x, int y, int z, int w);
     void set(int block, vec4int v){set(block, v.x, v.y, v.z, v.w);}
 

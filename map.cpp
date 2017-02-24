@@ -14,19 +14,14 @@
 using std::min;
 using std::max;
 
-Map::Map(int _size){
+Map::Map(){
     version = 1;
-    update = false;
+    updateVersion = false;
     initBlockTypes();
 
-    size = _size;
-    bsize = size * size * size * size;
-    blocks.resize(bsize, 0);
+    dt = 18/1000.0;
 
-    initpos.x = 0.5;
-    initpos.y = size - 1;
-    initpos.z = 0.5;
-    initpos.w = size - 1;
+    fixEntrance = true;
 }
 
 Map::~Map(){
@@ -34,9 +29,9 @@ Map::~Map(){
 
 void Map::initBlockTypes(){
     clearBlockTypes();
-    blockTypes.push_back(new B_Air);
-    blockTypes.push_back(new B_Solid);
-    blockTypes.push_back(new B_Spike);
+    blockTypes.push_back(new BlockType::Air);
+    blockTypes.push_back(new BlockType::Solid);
+    blockTypes.push_back(new BlockType::Spike);
 }
 
 void Map::clearBlockTypes(){
@@ -59,6 +54,14 @@ void Map::load(const std::string & filename){
     f >> fileversion;
     switch (fileversion){
         case 1:
+            size = 16;
+            bsize = size * size * size * size;
+            blocks.resize(bsize, 0);
+            initpos.x = 0.5;
+            initpos.y = size - 1;
+            initpos.z = 0.5;
+            initpos.w = size - 1;
+
             for (int i = 0; i < bsize; ++i) f >> blocks[i];
             break;
         case 2:
@@ -70,7 +73,7 @@ void Map::load(const std::string & filename){
             break;
     }
 
-    if (!update && (fileversion < version)) version = fileversion;
+    if (!updateVersion && (fileversion < version)) version = fileversion;
 
     f.close();
 }

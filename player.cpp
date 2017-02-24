@@ -2,9 +2,10 @@
 #include "map.h"
 #include "renderer.h"
 #include "block.h"
+#include "exception.h"
 #include <SDL2/SDL.h>
 
-Player::Player(){
+Player::Player(Map * _map):Object(_map){
     pos.x = pos.z = 0.5;
     pos.y = pos.w = 15;
     v.x = v.y = v.z = v.w = 0;
@@ -21,7 +22,7 @@ Player::Player(){
     //things about jumping
     hasgravity = true;
     double jumpheight = 3.2;
-    double jumptime = 0.8;
+    double jumptime = 1.2;
     double jumpdistance = 5;
     multg = 5;
     ground1 = ground2 = false;
@@ -32,10 +33,12 @@ Player::Player(){
     jumpspeed = 4 * jumpheight / jumptime;
     speed = jumpdistance / jumptime;
 
+    addAction(new Action::keyboardAction);
 }
 
-void Player::init(Map * map){
-    pos = map->initpos;
+void Player::init(Map * _map){
+    map = _map;
+    if (map->fixEntrance) pos = map->initpos;
 }
 
 inline int min(int a, int b){
@@ -46,80 +49,90 @@ inline int max(int a, int b){
     return (a>b)?a:b;
 }
 
-void Player::react(const unsigned char * keystate, double dt){
-    lSpriteNum = 0;
-    rSpriteNum = 4;
-    v.x = v.z = 0;
-    if (!hasgravity){
-        v.y = v.w = 0;
-    }
+namespace Action{
 
-    //player1 velocity
-    if (keystate[SDL_SCANCODE_S]){
-        lSpriteNum = 0;
-        if (!hasgravity) v.y = -speed;
-    }
-    if (keystate[SDL_SCANCODE_D]){
-        lSpriteNum = 1;
-        v.x = speed;
-    }
-    if (keystate[SDL_SCANCODE_A]){
+    void keyboardAction::act(){
+        Player * player = dynamic_cast<Player *> (obj);
+        if (player == nullptr) throw std::runtime_error("Uncompactable object type for the action");
+
+        double dt = player->map->dt;
+        const Uint8 * keystate = SDL_GetKeyboardState(NULL);
+
+        player->lSpriteNum = 0;
+        player->rSpriteNum = 4;
+        player->v.x = player->v.z = 0;
+        if (!player->hasgravity){
+            player->v.y = player->v.w = 0;
+        }
+
+        //player1 velocity
+        if (keystate[SDL_SCANCODE_S]){
+            player->lSpriteNum = 0;
+            if (!player->hasgravity) player->v.y = -player->speed;
+        }
         if (keystate[SDL_SCANCODE_D]){
-            lSpriteNum = 0;
-            v.x = 0;
-        } else {
-            lSpriteNum = 2;
-            v.x = -speed;
+            player->lSpriteNum = 1;
+            player->v.x = player->speed;
         }
-    }
-    if (keystate[SDL_SCANCODE_W]){
-        lSpriteNum = 3;
-        if (hasgravity){
-            v.y -= g * dt;
-        } else {
-            v.y = speed;
+        if (keystate[SDL_SCANCODE_A]){
+            if (keystate[SDL_SCANCODE_D]){
+                player->lSpriteNum = 0;
+                player->v.x = 0;
+            } else {
+                player->lSpriteNum = 2;
+                player->v.x = -player->speed;
+            }
         }
-    } else if (hasgravity){
-        v.y -= dt * g * ((v.y<0)?1:multg);
-    }
-    if (hasgravity && ground1 && jumpflag1){
-        v.y = jumpspeed;
-        ground1 = false;
-        jumpflag1 = false;
-    }
+        if (keystate[SDL_SCANCODE_W]){
+            player->lSpriteNum = 3;
+            if (player->hasgravity){
+                player->v.y -= player->g * dt;
+            } else {
+                player->v.y = player->speed;
+            }
+        } else if (player->hasgravity){
+            player->v.y -= dt * player->g * ((player->v.y<0)?1:player->multg);
+        }
+        if (player->hasgravity && player->ground1 && player->jumpflag1){
+            player->v.y = player->jumpspeed;
+            player->ground1 = false;
+            player->jumpflag1 = false;
+        }
 
-    //player2 velocity
-    if (keystate[SDL_SCANCODE_DOWN]){
-        rSpriteNum = 4;
-        if (!hasgravity) v.w = -speed;
-    }
-    if (keystate[SDL_SCANCODE_RIGHT]){
-        rSpriteNum = 5;
-        v.z = speed;
-    }
-    if (keystate[SDL_SCANCODE_LEFT]){
+        //player2 velocity
+        if (keystate[SDL_SCANCODE_DOWN]){
+            player->rSpriteNum = 4;
+            if (!player->hasgravity) player->v.w = -player->speed;
+        }
         if (keystate[SDL_SCANCODE_RIGHT]){
-            rSpriteNum = 4;
-            v.z = 0;
-        } else {
-            rSpriteNum = 6;
-            v.z = -speed;
+            player->rSpriteNum = 5;
+            player->v.z = player->speed;
         }
-    }
-    if (keystate[SDL_SCANCODE_UP]){
-        rSpriteNum = 7;
-        if (hasgravity){
-            v.w -= g * dt;
-        } else {
-            v.w = speed;
+        if (keystate[SDL_SCANCODE_LEFT]){
+            if (keystate[SDL_SCANCODE_RIGHT]){
+                player->rSpriteNum = 4;
+                player->v.z = 0;
+            } else {
+                player->rSpriteNum = 6;
+                player->v.z = -player->speed;
+            }
         }
-    } else if (hasgravity){
-        v.w -= dt * g * ((v.w<0)?1:multg);
-    }
-    if (hasgravity && ground2 && jumpflag2){
-        v.w = jumpspeed;
-        ground2 = false;
-        jumpflag2 = false;
+        if (keystate[SDL_SCANCODE_UP]){
+            player->rSpriteNum = 7;
+            if (player->hasgravity){
+                player->v.w -= player->g * dt;
+            } else {
+                player->v.w = player->speed;
+            }
+        } else if (player->hasgravity){
+            player->v.w -= dt * player->g * ((player->v.w<0)?1:player->multg);
+        }
+        if (player->hasgravity && player->ground2 && player->jumpflag2){
+            player->v.w = player->jumpspeed;
+            player->ground2 = false;
+            player->jumpflag2 = false;
+        }
+
     }
 
 }

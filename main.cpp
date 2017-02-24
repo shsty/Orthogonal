@@ -6,20 +6,15 @@
 
 char msg[ERRBUFSIZE];
 
-const int MainApp::mapSize = 16;
-
 MainApp mainApp;
 
 MainApp::MainApp(){
     state = S_STOP;
 
-    dt = 18/1000.0;
-    g = 1.0;
-
     mapname = "assets/test.map";
 
-    map = new Map(mapSize);
-    player = new Player();
+    map = new Map();
+    player = new Player(map);
     cursor = new Cursor();
 
     cursor->active1 = cursor->active2 = 0;
@@ -27,8 +22,8 @@ MainApp::MainApp(){
 }
 
 MainApp::~MainApp(){
-    delete map;
     delete player;
+    delete map;
     delete cursor;
 }
 
@@ -70,13 +65,9 @@ int main(int argc, char* argv[]) {
 }
 
 bool MainApp::OnInit(){
-    //initializing window and render environment
-    renderer = new Renderer(mapSize);
-
     //loading map
     try{
         map->load(mapname);
-        player->init(map);
     }
     catch (std::exception & e){
         SDL_Log(e.what());
@@ -84,6 +75,12 @@ bool MainApp::OnInit(){
         SDL_Log("Starting with empty map");
         map->clear();
     }
+
+    //initializing player position
+    player->init(map);
+
+    //initializing window and render environment
+    renderer = new Renderer(map->size);
     
     //done initilizing
     state = S_RUNNING;
@@ -106,9 +103,7 @@ void MainApp::OnRender(){
 }
 
 void MainApp::OnLoop(){
-    const Uint8* keystate = SDL_GetKeyboardState(NULL);
-    player->react(keystate, dt);
-    player->move(map, dt);
+    player->update();
 }
 
 void MainApp::OnDelay(){

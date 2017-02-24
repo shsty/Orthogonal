@@ -1,4 +1,5 @@
 #include <cmath>
+#include "main.h"
 #include "object.h"
 #include "map.h"
 #include "block.h"
@@ -7,114 +8,164 @@
 using std::max;
 using std::min;
 
-void Object::move(Map * map, double dt){
-    // boundary detect
-    if (x1() + v.x * dt < 0) {
-        v.x = 0;
-        x1_set(0);
-    }
-    if (x2() + v.x * dt > map->size) {
-        v.x = 0;
-        x2_set(map->size);
-    }
-    if (y1() + v.y * dt < 0) {
-        v.y = 0;
-        y1_set(0);
-        ground1 = true;
-    }
-    if (y2() + v.y * dt > map->size) {
-        v.y = 0;
-        y2_set(map->size);
-    }
+Object::Object(Map * _map):pos(), v(), box(){
+    map = _map;
+    actions = nullptr;
+    addAction(new Action::boundaryDetect);
+    addAction(new Action::blockDetectAndMove);
+}
 
-    if (z1() + v.z * dt < 0) {
-        v.z = 0;
-        z1_set(0);
-    }
-    if (z2() + v.z * dt > map->size) {
-        v.z = 0;
-        z2_set(map->size);
-    }
-    if (w1() + v.w * dt < 0) {
-        v.w = 0;
-        w1_set(0);
-        ground2 = true;
-    }
-    if (w2() + v.w * dt > map->size) {
-        v.w = 0;
-        w2_set(map->size);
-    }
+Object::~Object(){
+    clearActions(actions);
+}
 
-    //collision detect and moving
-    if (v.x < 0){ 
-        for (int i = max(0, (int)floor(x1() + v.x * dt)); i < min((int)ceil(x1()), map->size); ++i)
-        for (int j = max(0, (int)floor(y1())); j < min((int)ceil(y2()), map->size); ++j)
-        for (int k = max(0, (int)floor(z1())); k < min((int)ceil(z2()), map->size); ++k)
-        for (int l = max(0, (int)floor(w1())); l < min((int)ceil(w2()), map->size); ++l)
-            map->getBlockType(i, j, k, l)->collide(this, P_xNegative, vec4int(i,j,k,l));
-    }
-    if (v.x > 0){
-        for (int i = max(0, (int)floor(x2())); i < min((int)ceil(x2() + v.x * dt), map->size); ++i)
-        for (int j = max(0, (int)floor(y1())); j < min((int)ceil(y2()), map->size); ++j)
-        for (int k = max(0, (int)floor(z1())); k < min((int)ceil(z2()), map->size); ++k)
-        for (int l = max(0, (int)floor(w1())); l < min((int)ceil(w2()), map->size); ++l)
-            map->getBlockType(i, j, k, l)->collide(this, P_xPositive, vec4int(i,j,k,l));
-    }
-    pos.x += v.x * dt;
+void Object::update(){
+    actions->chainact();
+}
 
-    if (v.y < 0){ 
-        for (int i = max(0, (int)floor(x1())); i < min((int)ceil(x2()), map->size); ++i)
-        for (int j = max(0, (int)floor(y1() + v.y * dt)); j < min((int)ceil(y1()), map->size); ++j)
-        for (int k = max(0, (int)floor(z1())); k < min((int)ceil(z2()), map->size); ++k)
-        for (int l = max(0, (int)floor(w1())); l < min((int)ceil(w2()), map->size); ++l)
-            map->getBlockType(i, j, k, l)->collide(this, P_yNegative, vec4int(i,j,k,l));
+void Object::clearActions(Action::Action * _actions){
+    if (_actions){
+        clearActions(_actions->next);
+        delete _actions;
     }
-    if (v.y > 0){
-        for (int i = max(0, (int)floor(x1())); i < min((int)ceil(x2()), map->size); ++i)
-        for (int j = max(0, (int)floor(y2())); j < min((int)ceil(y2() + v.y * dt), map->size); ++j)
-        for (int k = max(0, (int)floor(z1())); k < min((int)ceil(z2()), map->size); ++k)
-        for (int l = max(0, (int)floor(w1())); l < min((int)ceil(w2()), map->size); ++l)
-            map->getBlockType(i, j, k, l)->collide(this, P_yPositive, vec4int(i,j,k,l));
-    }
-    pos.y += v.y * dt;
-    if (v.y < 0) ground1 = false;
+}
 
-    if (v.z < 0){ 
-        for (int i = max(0, (int)floor(x1())); i < min((int)ceil(x2()), map->size); ++i)
-        for (int j = max(0, (int)floor(y1())); j < min((int)ceil(y2()), map->size); ++j)
-        for (int k = max(0, (int)floor(z1() + v.z * dt)); k < min((int)ceil(z1()), map->size); ++k)
-        for (int l = max(0, (int)floor(w1())); l < min((int)ceil(w2()), map->size); ++l)
-            map->getBlockType(i, j, k, l)->collide(this, P_zNegative, vec4int(i,j,k,l));
+Object & Object::addAction(Action::Action * action){
+    if (action){
+        action->next = actions;
+        action->obj = this;
+        actions = action;
     }
-    if (v.z > 0){
-        for (int i = max(0, (int)floor(x1())); i < min((int)ceil(x2()), map->size); ++i)
-        for (int j = max(0, (int)floor(y1())); j < min((int)ceil(y2()), map->size); ++j)
-        for (int k = max(0, (int)floor(z2())); k < min((int)ceil(z2() + v.z * dt), map->size); ++k)
-        for (int l = max(0, (int)floor(w1())); l < min((int)ceil(w2()), map->size); ++l)
-            map->getBlockType(i, j, k, l)->collide(this, P_zPositive, vec4int(i,j,k,l));
-    }
-    pos.z += v.z * dt;
-
-    if (v.w < 0){ 
-        for (int i = max(0, (int)floor(x1())); i < min((int)ceil(x2()), map->size); ++i)
-        for (int j = max(0, (int)floor(y1())); j < min((int)ceil(y2()), map->size); ++j)
-        for (int k = max(0, (int)floor(z1())); k < min((int)ceil(z2()), map->size); ++k)
-        for (int l = max(0, (int)floor(w1() + v.w * dt)); l < min((int)ceil(w1()), map->size); ++l)
-            map->getBlockType(i, j, k, l)->collide(this, P_wNegative, vec4int(i,j,k,l));
-    }
-    if (v.w > 0){
-        for (int i = max(0, (int)floor(x1())); i < min((int)ceil(x2()), map->size); ++i)
-        for (int j = max(0, (int)floor(y1())); j < min((int)ceil(y2()), map->size); ++j)
-        for (int k = max(0, (int)floor(z1())); k < min((int)ceil(z2()), map->size); ++k)
-        for (int l = max(0, (int)floor(w2())); l < min((int)ceil(w2() + v.w * dt), map->size); ++l)
-            map->getBlockType(i, j, k, l)->collide(this, P_wPositive, vec4int(i,j,k,l));
-    }
-    pos.w += v.w * dt;
-    if (v.w < 0) ground2 = false;
-
+    return (*this);
 }
 
 void Object::render(Renderer * ren){
     ren->tex[lSpriteName]->draw(ren->lfieldrect, x1(), y1(), box.width1(), box.height1(), lSpriteNum);
     ren->tex[rSpriteName]->draw(ren->rfieldrect, z1(), w1(), box.width2(), box.height2(), rSpriteNum);
+}
+
+namespace Action{
+
+    void blockDetectAndMove::act(){
+        Map * map = obj->map;
+        int size = map->size;
+        double dt = map->dt;
+
+        //collision detect and moving
+        if (obj->v.x < 0){ 
+            for (int i = max(0, (int)floor(obj->x1() + obj->v.x * dt)); i < min((int)ceil(obj->x1()), size); ++i)
+            for (int j = max(0, (int)floor(obj->y1())); j < min((int)ceil(obj->y2()), size); ++j)
+            for (int k = max(0, (int)floor(obj->z1())); k < min((int)ceil(obj->z2()), size); ++k)
+            for (int l = max(0, (int)floor(obj->w1())); l < min((int)ceil(obj->w2()), size); ++l)
+                map->getBlockType(i, j, k, l)->collide(obj, P_xNegative, vec4int(i,j,k,l));
+        }
+        if (obj->v.x > 0){
+            for (int i = max(0, (int)floor(obj->x2())); i < min((int)ceil(obj->x2() + obj->v.x * dt), size); ++i)
+            for (int j = max(0, (int)floor(obj->y1())); j < min((int)ceil(obj->y2()), size); ++j)
+            for (int k = max(0, (int)floor(obj->z1())); k < min((int)ceil(obj->z2()), size); ++k)
+            for (int l = max(0, (int)floor(obj->w1())); l < min((int)ceil(obj->w2()), size); ++l)
+                map->getBlockType(i, j, k, l)->collide(obj, P_xPositive, vec4int(i,j,k,l));
+        }
+        obj->pos.x += obj->v.x * dt;
+
+        if (obj->v.y < 0){ 
+            for (int i = max(0, (int)floor(obj->x1())); i < min((int)ceil(obj->x2()), size); ++i)
+            for (int j = max(0, (int)floor(obj->y1() + obj->v.y * dt)); j < min((int)ceil(obj->y1()), size); ++j)
+            for (int k = max(0, (int)floor(obj->z1())); k < min((int)ceil(obj->z2()), size); ++k)
+            for (int l = max(0, (int)floor(obj->w1())); l < min((int)ceil(obj->w2()), size); ++l)
+                map->getBlockType(i, j, k, l)->collide(obj, P_yNegative, vec4int(i,j,k,l));
+        }
+        if (obj->v.y > 0){
+            for (int i = max(0, (int)floor(obj->x1())); i < min((int)ceil(obj->x2()), size); ++i)
+            for (int j = max(0, (int)floor(obj->y2())); j < min((int)ceil(obj->y2() + obj->v.y * dt), size); ++j)
+            for (int k = max(0, (int)floor(obj->z1())); k < min((int)ceil(obj->z2()), size); ++k)
+            for (int l = max(0, (int)floor(obj->w1())); l < min((int)ceil(obj->w2()), size); ++l)
+                map->getBlockType(i, j, k, l)->collide(obj, P_yPositive, vec4int(i,j,k,l));
+        }
+        obj->pos.y += obj->v.y * dt;
+        if (obj->v.y < 0) obj->ground1 = false;
+
+        if (obj->v.z < 0){ 
+            for (int i = max(0, (int)floor(obj->x1())); i < min((int)ceil(obj->x2()), size); ++i)
+            for (int j = max(0, (int)floor(obj->y1())); j < min((int)ceil(obj->y2()), size); ++j)
+            for (int k = max(0, (int)floor(obj->z1() + obj->v.z * dt)); k < min((int)ceil(obj->z1()), size); ++k)
+            for (int l = max(0, (int)floor(obj->w1())); l < min((int)ceil(obj->w2()), size); ++l)
+                map->getBlockType(i, j, k, l)->collide(obj, P_zNegative, vec4int(i,j,k,l));
+        }
+        if (obj->v.z > 0){
+            for (int i = max(0, (int)floor(obj->x1())); i < min((int)ceil(obj->x2()), size); ++i)
+            for (int j = max(0, (int)floor(obj->y1())); j < min((int)ceil(obj->y2()), size); ++j)
+            for (int k = max(0, (int)floor(obj->z2())); k < min((int)ceil(obj->z2() + obj->v.z * dt), size); ++k)
+            for (int l = max(0, (int)floor(obj->w1())); l < min((int)ceil(obj->w2()), size); ++l)
+                map->getBlockType(i, j, k, l)->collide(obj, P_zPositive, vec4int(i,j,k,l));
+        }
+        obj->pos.z += obj->v.z * dt;
+
+        if (obj->v.w < 0){ 
+            for (int i = max(0, (int)floor(obj->x1())); i < min((int)ceil(obj->x2()), size); ++i)
+            for (int j = max(0, (int)floor(obj->y1())); j < min((int)ceil(obj->y2()), size); ++j)
+            for (int k = max(0, (int)floor(obj->z1())); k < min((int)ceil(obj->z2()), size); ++k)
+            for (int l = max(0, (int)floor(obj->w1() + obj->v.w * dt)); l < min((int)ceil(obj->w1()), size); ++l)
+                map->getBlockType(i, j, k, l)->collide(obj, P_wNegative, vec4int(i,j,k,l));
+        }
+        if (obj->v.w > 0){
+            for (int i = max(0, (int)floor(obj->x1())); i < min((int)ceil(obj->x2()), size); ++i)
+            for (int j = max(0, (int)floor(obj->y1())); j < min((int)ceil(obj->y2()), size); ++j)
+            for (int k = max(0, (int)floor(obj->z1())); k < min((int)ceil(obj->z2()), size); ++k)
+            for (int l = max(0, (int)floor(obj->w2())); l < min((int)ceil(obj->w2() + obj->v.w * dt), size); ++l)
+                map->getBlockType(i, j, k, l)->collide(obj, P_wPositive, vec4int(i,j,k,l));
+        }
+        obj->pos.w += obj->v.w * dt;
+        if (obj->v.w < 0) obj->ground2 = false;
+
+    }
+
+    void Action::chainact(){
+        act();
+        if (next) next->chainact();
+    }
+
+    void boundaryDetect::act(){
+        Map * map = obj->map;
+        double dt = map->dt;
+
+        // boundary detect
+        if (obj->x1() + obj->v.x * dt < 0) {
+            obj->v.x = 0;
+            obj->x1_set(0);
+        }
+        if (obj->x2() + obj->v.x * dt > map->size) {
+            obj->v.x = 0;
+            obj->x2_set(map->size);
+        }
+        if (obj->y1() + obj->v.y * dt < 0) {
+            obj->v.y = 0;
+            obj->y1_set(0);
+            obj->ground1 = true;
+        }
+        if (obj->y2() + obj->v.y * dt > map->size) {
+            obj->v.y = 0;
+            obj->y2_set(map->size);
+        }
+
+        if (obj->z1() + obj->v.z * dt < 0) {
+            obj->v.z = 0;
+            obj->z1_set(0);
+        }
+        if (obj->z2() + obj->v.z * dt > map->size) {
+            obj->v.z = 0;
+            obj->z2_set(map->size);
+        }
+        if (obj->w1() + obj->v.w * dt < 0) {
+            obj->v.w = 0;
+            obj->w1_set(0);
+            obj->ground2 = true;
+        }
+        if (obj->w2() + obj->v.w * dt > map->size) {
+            obj->v.w = 0;
+            obj->w2_set(map->size);
+        }
+
+    }
+
 }

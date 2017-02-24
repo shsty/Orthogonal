@@ -13,10 +13,15 @@ public:
     double speed;
     double acc;
 
-    Player();
+    Player(Map * _map);
 
-    void init(Map * map);
-    void react(const unsigned char * keystate, double dt);
+    void init(Map * _map);
 };
 
+namespace Action{
+    class keyboardAction:public Action{
+    public:
+        virtual void act();
+    };
+}
 #endif

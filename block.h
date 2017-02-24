@@ -13,46 +13,50 @@ enum P_Dir{
     P_wPositive, P_wNegative,
 };
 
-class BlockType{
-public:
-    std::string lSpriteName, rSpriteName;
-    int lSpriteNum, rSpriteNum;
+namespace BlockType{
 
-    BlockType(){}
+    class BlockType{
+    public:
+        std::string lSpriteName, rSpriteName;
+        int lSpriteNum, rSpriteNum;
 
-    virtual void renderLeft(Renderer * ren, int x, int y, double alpha = 1.0);
-    virtual void renderRight(Renderer * ren, int z, int w, double alpha = 1.0);
+        BlockType(){}
 
-    virtual void collide(Object * object, enum P_Dir dir, vec4int pos){}
-    virtual void overlay(Object * object){}
+        virtual void renderLeft(Renderer * ren, int x, int y, double alpha = 1.0);
+        virtual void renderRight(Renderer * ren, int z, int w, double alpha = 1.0);
 
-    virtual Json::Value toJson();
-    virtual void fromJson(Json::Value json);
-};
+        virtual void collide(Object * object, enum P_Dir dir, vec4int pos){}
+        virtual void overlay(Object * object){}
 
-class B_Air:public BlockType{
-public:
-    B_Air():BlockType(){
-        lSpriteName = "block"; lSpriteNum = 0;
-        rSpriteName = "block"; rSpriteNum = 0;
-    }
-};
+        virtual Json::Value toJson();
+        virtual void fromJson(Json::Value json);
+    };
 
-class B_Solid:public BlockType{
-public:
-    B_Solid():BlockType(){
-        lSpriteName = "block"; lSpriteNum = 1;
-        rSpriteName = "block"; rSpriteNum = 1;
-    }
-    virtual void collide(Object * object, enum P_Dir dir, vec4int pos);
-};
+    class Air:public BlockType{
+    public:
+        Air():BlockType(){
+            lSpriteName = "block"; lSpriteNum = 0;
+            rSpriteName = "block"; rSpriteNum = 0;
+        }
+    };
 
-class B_Spike:public B_Air{
-public:
-    B_Spike():B_Air(){
-        lSpriteName = "block"; lSpriteNum = 2;
-        rSpriteName = "block"; rSpriteNum = 2;
-    }
-};
+    class Solid:public BlockType{
+    public:
+        Solid():BlockType(){
+            lSpriteName = "block"; lSpriteNum = 1;
+            rSpriteName = "block"; rSpriteNum = 1;
+        }
+        virtual void collide(Object * object, enum P_Dir dir, vec4int pos);
+    };
+
+    class Spike:public Air{
+    public:
+        Spike():Air(){
+            lSpriteName = "block"; lSpriteNum = 2;
+            rSpriteName = "block"; rSpriteNum = 2;
+        }
+    };
+
+}
 
 #endif
