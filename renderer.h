@@ -25,6 +25,7 @@ public:
     ~Texture();
 
     void draw(const SDL_Rect * drect, int index = 0);
+    void draw(const SDL_Rect & rect, double x, double y, double w, double h, const SDL_Rect *srect, double alpha = 1.0);
     void draw(const SDL_Rect & rect, double x, double y, double w, double h, int index = 0, double alpha = 1.0);
 };
 

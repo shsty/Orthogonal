@@ -5,7 +5,7 @@ bin/player.o: player.cpp player.h declaration.h object.h base.h map.h \
  renderer.h block.h exception.h
 bin/renderer.o: renderer.cpp renderer.h declaration.h exception.h
 bin/cursor.o: cursor.cpp cursor.h declaration.h renderer.h
-bin/block.o: block.cpp block.h base.h declaration.h object.h renderer.h
+bin/block.o: block.cpp block.h base.h declaration.h object.h map.h renderer.h
 bin/event.o: event.cpp main.h exception.h declaration.h cursor.h map.h base.h \
  player.h object.h renderer.h
 bin/main.o: main.cpp main.h exception.h declaration.h cursor.h map.h base.h \

@@ -27,11 +27,16 @@ Map::Map(){
 Map::~Map(){
 }
 
+void Map::addBlockType(BlockType::BlockType * blocktype){
+    blocktype->map = this;
+    blockTypes.push_back(blocktype);
+}
+
 void Map::initBlockTypes(){
     clearBlockTypes();
-    blockTypes.push_back(new BlockType::Air);
-    blockTypes.push_back(new BlockType::Solid);
-    blockTypes.push_back(new BlockType::Spike);
+    addBlockType(new BlockType::StarsBG);
+    addBlockType(new BlockType::Solid);
+    addBlockType(new BlockType::Spike);
 }
 
 void Map::clearBlockTypes(){
@@ -139,7 +144,13 @@ void Map::fill(int block, int x1, int x2, int y1, int y2, int z1, int z2, int w1
         set(block, i, j, k, l);
 }
 
+void Map::update(){
+    ++ticks;
+}
+
 void Map::render(Player * player, Renderer * ren){
+    camerapos = player->pos;
+
     double x1 = player->x1(), x2 = player->x2();
     double y1 = player->y1(), y2 = player->y2();
     double z1 = player->z1(), z2 = player->z2();

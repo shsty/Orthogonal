@@ -104,6 +104,7 @@ void MainApp::OnRender(){
 
 void MainApp::OnLoop(){
     player->update();
+    map->update();
 }
 
 void MainApp::OnDelay(){

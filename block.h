@@ -19,6 +19,7 @@ namespace BlockType{
     public:
         std::string lSpriteName, rSpriteName;
         int lSpriteNum, rSpriteNum;
+        Map * map;
 
         BlockType(){}
 
@@ -26,7 +27,7 @@ namespace BlockType{
         virtual void renderRight(Renderer * ren, int z, int w, double alpha = 1.0);
 
         virtual void collide(Object * object, enum P_Dir dir, vec4int pos){}
-        virtual void overlay(Object * object){}
+        virtual void overlay(Object * object, vec4int pos){}
 
         virtual Json::Value toJson();
         virtual void fromJson(Json::Value json);
@@ -38,6 +39,16 @@ namespace BlockType{
             lSpriteName = "block"; lSpriteNum = 0;
             rSpriteName = "block"; rSpriteNum = 0;
         }
+    };
+
+    class StarsBG:public Air{
+    public:
+        StarsBG():Air(){
+            lSpriteName = "stars"; lSpriteNum = 0;
+            rSpriteName = "stars"; rSpriteNum = 0;
+        }
+        virtual void renderLeft(Renderer * ren, int x, int y, double alpha = 1.0);
+        virtual void renderRight(Renderer * ren, int z, int w, double alpha = 1.0);
     };
 
     class Solid:public BlockType{

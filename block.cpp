@@ -1,5 +1,6 @@
 #include "block.h"
 #include "object.h"
+#include "map.h"
 #include "renderer.h"
 
 namespace BlockType{
@@ -10,6 +11,29 @@ namespace BlockType{
 
     void BlockType::renderRight(Renderer * ren, int x, int y, double alpha){
         ren->tex[rSpriteName]->draw(ren->rfieldrect, x, y, 1, 1, rSpriteNum, alpha);
+    }
+
+    void StarsBG::renderLeft(Renderer * ren, int x, int y, double alpha){
+        SDL_Rect srect;
+        srect.w = srect.h = 16;
+        vec2double t(x, y);
+        const vec4double & camerapos = map->camerapos;
+        t = t + camerapos.getzw() + camerapos.getxy() * (1.0/16);
+        t = t * 16;
+        srect.x = ((int)t.x % 256);
+        srect.y = 255 - ((int)t.y % 256);
+        ren->tex[lSpriteName]->draw(ren->lfieldrect, x, y, 1, 1, &srect, alpha);
+    }
+    void StarsBG::renderRight(Renderer * ren, int z, int w, double alpha){
+        SDL_Rect srect;
+        srect.w = srect.h = 16;
+        vec2double t(z, w);
+        const vec4double & camerapos = map->camerapos;
+        t = t + camerapos.getxy() + camerapos.getzw() * (1.0/16);
+        t = t * 16;
+        srect.x = ((int)t.x % 256);
+        srect.y = 255 - ((int)t.y % 256);
+        ren->tex[rSpriteName]->draw(ren->rfieldrect, z, w, 1, 1, &srect, alpha);
     }
 
     void Solid::collide(Object * object, enum P_Dir dir, vec4int pos){

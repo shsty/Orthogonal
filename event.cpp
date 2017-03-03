@@ -31,6 +31,7 @@ void MainApp::OnEvent(SDL_Event* event){
 }
 
 void MainApp::KeyDownEvent(SDL_Event * event){
+    SDL_Event quitevent;
     switch (event->key.keysym.scancode){
         case SDL_SCANCODE_ESCAPE:
             quitevent.type = SDL_QUIT;

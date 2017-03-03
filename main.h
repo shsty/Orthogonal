@@ -12,7 +12,6 @@
 
 class MainApp{
 public:
-    SDL_Event quitevent;
     enum {S_STOP, S_RUNNING} state;
 
     Renderer * renderer;

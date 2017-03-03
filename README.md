@@ -1,22 +1,28 @@
 # Orthogonal - a dual vision platformer game
 
 ## Introduction
-The game is currently only a prototype/map-editor
+The game is currently only a prototype/map editor
 
 ## Control
-use `wasd` and `arrow keys` to control the characters respectively
+use `wasd` to control the character on the left
+
+use `arrow keys` to control the characters on the right
 
 press `Esc` to exit the game
 
 ## Map editor
 use `left mouse button` to select areas in both view port
+
 press `right mouse button` to cancel the selection
-press `number keys` to fill the selection with one type of blocks
+
+when you have selections on both view port, press `number keys` to fill the selection with one type of blocks
+
 `1`: fill with air
+
 `2`: fill with solid blocks
 
 ## Installation
-This game currently only compiles in Linux
+This game only compiles in Linux by now
 
 ### Required libraries:
 libSDL2, libSDL2\_image, libjsoncpp

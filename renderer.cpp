@@ -57,7 +57,8 @@ const SDL_Rect Renderer::cursorSpritePos[16] = {
 
 Renderer::Renderer(int _mapSize){
     mapSize = _mapSize;
-    fieldscale = 48;
+    fieldscale = 32;
+    //fieldscale = 48;
     screen_width = (2 * mapSize + 2.25) * fieldscale;
     screen_height = (mapSize + 1.5) * fieldscale;
 
@@ -102,6 +103,7 @@ Renderer::Renderer(int _mapSize){
     tex["player"] = new Texture(respath + "player.png", playerSpritePos, (sizeof playerSpritePos) / (sizeof *playerSpritePos));
     tex["block"] = new Texture(respath + "blocks.png", blockSpritePos, (sizeof blockSpritePos) / (sizeof *blockSpritePos));
     tex["cursor"] = new Texture(respath + "cursor.png", cursorSpritePos, (sizeof cursorSpritePos) / (sizeof *cursorSpritePos));
+    tex["stars"] = new Texture(respath + "background3.png"); 
     
     //setting up fields
     int fw = fieldscale * mapSize;
@@ -167,6 +169,20 @@ Texture::Texture(const std::string & texfile, const SDL_Rect * _spriteRects, int
 
 Texture::~Texture(){
     if (tex) SDL_DestroyTexture(tex);
+}
+
+void Texture::draw(const SDL_Rect & rect, double x, double y, double w, double h, const SDL_Rect *srect, double alpha){
+    int a = (int)(alpha * 256);
+    if (a < 0) a = 0;
+    if (a > 255) a = 255;
+    if (SDL_SetTextureAlphaMod(tex, a)) throw SDL_Exception();
+
+    SDL_Rect drect;
+    drect.x = rect.x + renderer->fieldscale * x;
+    drect.y = rect.y + rect.h - renderer->fieldscale * (y + h);
+    drect.w = renderer->fieldscale * w;
+    drect.h = renderer->fieldscale * h;
+    SDL_RenderCopy(renderer->ren, tex, srect, &drect);
 }
 
 void Texture::draw(const SDL_Rect & rect, double x, double y, double w, double h, int index, double alpha){

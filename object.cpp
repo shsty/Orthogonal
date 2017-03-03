@@ -46,6 +46,11 @@ void Object::render(Renderer * ren){
 
 namespace Action{
 
+    void Action::chainact(){
+        act();
+        if (next) next->chainact();
+    }
+
     void blockDetectAndMove::act(){
         Map * map = obj->map;
         int size = map->size;
@@ -120,9 +125,15 @@ namespace Action{
 
     }
 
-    void Action::chainact(){
-        act();
-        if (next) next->chainact();
+    void overlayDetect::act(){
+        Map * map = obj->map;
+        int size = map->size;
+
+        for (int i = max(0, (int)floor(obj->x1())); i < min((int)ceil(obj->x2()), size); ++i)
+        for (int j = max(0, (int)floor(obj->y1())); j < min((int)ceil(obj->y2()), size); ++j)
+        for (int k = max(0, (int)floor(obj->z1())); k < min((int)ceil(obj->z2()), size); ++k)
+        for (int l = max(0, (int)floor(obj->w1())); l < min((int)ceil(obj->w2()), size); ++l)
+            map->getBlockType(i, j, k, l)->overlay(obj, vec4int(i,j,k,l));
     }
 
     void boundaryDetect::act(){

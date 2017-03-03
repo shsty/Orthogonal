@@ -10,6 +10,8 @@ public:
     int x, y;
     vec2int(int _x, int _y):x(_x), y(_y){}
     vec2int():vec2int(0, 0){}
+    vec2int operator + (const vec2int & v) const {return vec2int(x + v.x, y + v.y);}
+    vec2int operator * (const int & a) const {return vec2int(x*a, y*a);}
 };
 
 class vec4int{
@@ -18,6 +20,8 @@ public:
     vec4int(int _x, int _y, int _z, int _w):x(_x), y(_y), z(_z), w(_w){}
     vec4int(vec2int p, vec2int q):x(p.x), y(p.y), z(q.x), w(q.y){}
     vec4int():vec4int(0, 0, 0, 0){}
+    vec2int getxy() const {return vec2int(x, y);}
+    vec2int getzw() const {return vec2int(z, w);}
 };
 
 class box4int{
@@ -48,6 +52,8 @@ public:
     double x, y;
     vec2double(double _x, double _y):x(_x), y(_y){}
     vec2double():vec2double(0, 0){}
+    vec2double operator + (const vec2double & v) const {return vec2double(x + v.x, y + v.y);}
+    vec2double operator * (const double & a) const {return vec2double(x*a, y*a);}
 };
 
 class vec4double{
@@ -56,6 +62,8 @@ public:
     vec4double(double _x, double _y, double _z, double _w):x(_x), y(_y), z(_z), w(_w){}
     vec4double(vec2double p, vec2double q):x(p.x), y(p.y), z(q.x), w(q.y){}
     vec4double():vec4double(0, 0, 0, 0){}
+    vec2double getxy() const {return vec2double(x, y);}
+    vec2double getzw() const {return vec2double(z, w);}
 };
 
 class box4double{

@@ -1,7 +1,6 @@
 #ifndef DECLARARION_H
 #define DECLARARION_H
 
-class MainApp;
 class Player;
 class Renderer;
 class Object;

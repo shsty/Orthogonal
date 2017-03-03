@@ -65,7 +65,12 @@ namespace Action{
         virtual void act();
     };
 
-    class blockDetectAndMove:public boundaryDetect{
+    class blockDetectAndMove:public Action{
+    public:
+        virtual void act();
+    };
+
+    class overlayDetect:public Action{
     public:
         virtual void act();
     };
