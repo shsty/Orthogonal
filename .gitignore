@@ -1,3 +1,7 @@
 bin/
 sketch/plots
 .gdbinit
+*.cbp
+*.layout
+doxygen/
+*~
