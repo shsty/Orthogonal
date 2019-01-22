@@ -60,14 +60,37 @@ namespace BlockType{
         virtual void collide(Object * object, enum P_Dir dir, vec4int pos);
     };
 
-    class Spike:public Air{
+    class Spike:public Solid{
     public:
-        Spike():Air(){
+        Spike():Solid(){
             lSpriteName = "block"; lSpriteNum = 2;
             rSpriteName = "block"; rSpriteNum = 2;
         }
     };
 
+    class Mist:public Air{
+    public:
+        Mist():Air(){
+            lSpriteName = "block"; lSpriteNum = 3;
+            rSpriteName = "block"; rSpriteNum = 3;
+        }
+    };
+
+    class Metal:public Solid{
+    public:
+        Metal():Solid(){
+            lSpriteName = "block"; lSpriteNum = 4;
+            rSpriteName = "block"; rSpriteNum = 4;
+        }
+    };
+
+    class Chroley:public Solid{
+    public:
+        Chroley():Solid(){
+            lSpriteName = "block"; lSpriteNum = 5;
+            rSpriteName = "block"; rSpriteNum = 5;
+        }
+    };
 }
 
 #endif

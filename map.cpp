@@ -1,9 +1,9 @@
 #include <exception>
 #include <stdexcept>
 #include <fstream>
-#include <cstring> 
+#include <cstring>
 #include <cmath>
-#include <SDL2/SDL.h> 
+#include <SDL2/SDL.h>
 #include <json/json.h>
 
 #include "map.h"
@@ -37,6 +37,9 @@ void Map::initBlockTypes(){
     addBlockType(new BlockType::StarsBG);
     addBlockType(new BlockType::Solid);
     addBlockType(new BlockType::Spike);
+    addBlockType(new BlockType::Mist);
+    addBlockType(new BlockType::Metal);
+    addBlockType(new BlockType::Chroley);
 }
 
 void Map::clearBlockTypes(){
